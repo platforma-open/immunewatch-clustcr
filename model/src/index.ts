@@ -27,11 +27,11 @@ export type * from "@milaboratories/helpers";
  */
 export type InputSelection =
   | {
-      mode: "single";
-      sequenceRef: SUniversalPColumnId;
-      useVGene: boolean;
-      vGeneRef?: SUniversalPColumnId; // resolved V-gene column for the chosen chain (only when useVGene)
-    }
+    mode: "single";
+    sequenceRef: SUniversalPColumnId;
+    useVGene: boolean;
+    vGeneRef?: SUniversalPColumnId; // resolved V-gene column for the chosen chain (only when useVGene)
+  }
   | { mode: "paired"; betaRef: SUniversalPColumnId; alphaRef: SUniversalPColumnId };
 
 export type BlockData = {
@@ -274,11 +274,21 @@ export const platforma = BlockModelV3.create(dataModel)
   // clusTCR run log.
   .output("clustcrOutput", (ctx) => ctx.outputs?.resolve("clustcrLog")?.getLogHandle())
 
-  // MSA p-frame (per-clonotype sequences + linker + distances) for the alignment viewer.
+  // MSA p-frame for the alignment viewer: the workflow's msaPf (linker + distances + sequences)
+  // plus the dataset's ORIGINAL sequence columns chosen for clustering.
   .output("msaPf", (ctx): PFrameHandle | undefined => {
     const msaCols = ctx.outputs?.resolve("msaPf")?.getPColumns();
     if (!msaCols) return undefined;
-    return createPFrameForGraphs(ctx, msaCols);
+    const datasetRef = ctx.data.datasetRef;
+    const sel = ctx.data.inputSelection;
+    if (datasetRef === undefined || sel === undefined) return createPFrameForGraphs(ctx, msaCols);
+    const refs = sel.mode === "paired" ? [sel.betaRef, sel.alphaRef] : [sel.sequenceRef];
+    const seqCols = ctx.resultPool.getAnchoredPColumns(
+      { main: datasetRef },
+      refs.map((s) => JSON.parse(s) as never),
+    );
+    if (seqCols === undefined) return createPFrameForGraphs(ctx, msaCols);
+    return createPFrameForGraphs(ctx, [...msaCols, ...seqCols]);
   })
 
   // The cluster-to-clonotype linker column id, used by the MSA viewer.

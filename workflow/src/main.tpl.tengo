@@ -47,10 +47,10 @@ wf.prepare(func(args) {
 	bundleBuilder.addSingle({
 		axes: [ { anchor: "main", idx: 0 }, { anchor: "main", idx: 1 }],
 		annotations: {
-				"pl7.app/isAbundance": "true",
-				"pl7.app/abundance/normalized": "false",
-				"pl7.app/abundance/isPrimary": "true"
-			}
+			"pl7.app/isAbundance": "true",
+			"pl7.app/abundance/normalized": "false",
+			"pl7.app/abundance/isPrimary": "true"
+		}
 		},
 		"abundance")
 
@@ -73,7 +73,7 @@ wf.prepare(func(args) {
 			axes: [{ anchor: "main", idx: 1 }],
 			name: "pl7.app/label"
 		}, "clonotypeKeyLabels")
-			
+
 	return {
 		columns: bundleBuilder.build()
 	}
@@ -120,7 +120,7 @@ wf.body(func(args) {
 	emptyCheckAnalysis := render.create(emptyCheckTpl, {
 		seqTable: seqTable
 	})
-	
+
 	// get check content to be resolved in sub-template
 	emptyOrNot := emptyCheckAnalysis.output("emptyResult")
 
@@ -167,10 +167,10 @@ wf.body(func(args) {
 		inflation: args.inflation,
 		consensusThreshold: args.consensusThreshold,
 		weightByAbundance: args.weightByAbundance
-	}, {
-		metaInputs: {
-			mem: args.mem,
-			cpu: args.cpu
+		}, {
+			metaInputs: {
+				mem: args.mem,
+				cpu: args.cpu
 	}})
 
 	// Gather raw results from the clustering sub-template.
@@ -183,9 +183,9 @@ wf.body(func(args) {
 		name: "pl7.app/clusterId",
 		type: "String",
 		domain: maps.deepMerge(datasetSpec.axesSpec[1].domain,
-		{
-			"pl7.app/clustering/algorithm": "clustcr",
-			"pl7.app/clustering/blockId": blockId
+			{
+				"pl7.app/clustering/algorithm": "clustcr",
+				"pl7.app/clustering/blockId": blockId
 		}),
 		annotations: {
 			"pl7.app/label": "Cluster Id",
@@ -235,30 +235,30 @@ wf.body(func(args) {
 		axes: [{
 			column: "sampleId",
 			spec: abundanceSpec.axesSpec[0]
-		}, {
-			column: "clusterId",
-			spec: clusterIdAxisSpec
+			}, {
+				column: "clusterId",
+				spec: clusterIdAxisSpec
 		}],
 		columns: [{
 			column: "abundance",
 			spec: setTableProps(ac, abundanceLabel + " in Cluster", false, undefined,
 				abundanceLabel + " of each clonotype in this cluster, per sample.")
-		},
-		{
-			column: "abundance_normalized",
-			spec: setTableProps(maps.deepMerge(ac, {
-				name: fractionName,
-				valueType: "Float",
-				annotations: {
-					"pl7.app/abundance/normalized": "true",
-					"pl7.app/abundance/unit": abundanceUnit
-				}
-			}), text.re_replace("Number", abundanceLabel, "Fraction") + " in Cluster", false, undefined,
-				"Within-sample fraction of " + text.to_lower(abundanceLabel) + " of each clonotype in this cluster, per sample.")
+			},
+			{
+				column: "abundance_normalized",
+				spec: setTableProps(maps.deepMerge(ac, {
+					name: fractionName,
+					valueType: "Float",
+					annotations: {
+						"pl7.app/abundance/normalized": "true",
+						"pl7.app/abundance/unit": abundanceUnit
+					}
+					}), text.re_replace("Number", abundanceLabel, "Fraction") + " in Cluster", false, undefined,
+					"Within-sample fraction of " + text.to_lower(abundanceLabel) + " of each clonotype in this cluster, per sample.")
 		}],
 		storageFormat: "Parquet",
 		partitionKeyLength: 1
-	}, {splitDataAndSpec: true, cpu: defaultConvCpu, mem: defaultConvMem})
+		}, {splitDataAndSpec: true, cpu: defaultConvCpu, mem: defaultConvMem})
 
 	abundancesPerClusterPf := xsv.importFile(clusteringAnalysis.output("abundancesPerCluster"), "tsv", {
 		axes: [{
@@ -269,41 +269,41 @@ wf.body(func(args) {
 			column: "abundance_per_cluster",
 			spec: setTableProps(maps.deepMerge(ac, {
 				name: totalCountName
-			}), "Total " + abundanceLabel + " in Cluster", true, "2000",
+				}), "Total " + abundanceLabel + " in Cluster", true, "2000",
 				"Total " + text.to_lower(abundanceLabel) + " summed over all clonotypes in the cluster, across all samples.")
-		},
-		{
-			column: "abundance_fraction_per_cluster",
-			spec: func() {
-				abundanceFractionSpec := maps.deepMerge(ac, {
-					name: totalFractionName,
-					valueType: "Float",
-					annotations: {
-						"pl7.app/abundance/isPrimary": "true",
-						"pl7.app/abundance/normalized": "true",
-						"pl7.app/abundance/unit": abundanceUnit,
-						"pl7.app/format": ".2p",
-						"pl7.app/isAbundance": "true",
-						"pl7.app/max": "1",
-						"pl7.app/min": "0",
-						"pl7.app/isAnchor": undefined
-					}
-				})
-				fractionLabel := text.title(text.re_replace("number of ", text.to_lower(abundanceLabel), ""))
-				// Preserve common acronyms after title-casing.
-				fractionLabel = text.re_replace("Umis", fractionLabel, "UMIs")
-				resultSpec := setTableProps(abundanceFractionSpec, "Total " + fractionLabel + " Fraction in Cluster", true, "1",
-					"Share of the dataset-wide total " + text.to_lower(abundanceLabel) + " contributed by this cluster (0–1).")
-				// Filter out isAnchor annotation
-				resultSpec.annotations = maps.filter(resultSpec.annotations, func(k, v) {
-					return k != "pl7.app/isAnchor"
-				})
-				return resultSpec
-			}()
+			},
+			{
+				column: "abundance_fraction_per_cluster",
+				spec: func() {
+					abundanceFractionSpec := maps.deepMerge(ac, {
+						name: totalFractionName,
+						valueType: "Float",
+						annotations: {
+							"pl7.app/abundance/isPrimary": "true",
+							"pl7.app/abundance/normalized": "true",
+							"pl7.app/abundance/unit": abundanceUnit,
+							"pl7.app/format": ".2p",
+							"pl7.app/isAbundance": "true",
+							"pl7.app/max": "1",
+							"pl7.app/min": "0",
+							"pl7.app/isAnchor": undefined
+						}
+					})
+					fractionLabel := text.title(text.re_replace("number of ", text.to_lower(abundanceLabel), ""))
+					// Preserve common acronyms after title-casing.
+					fractionLabel = text.re_replace("Umis", fractionLabel, "UMIs")
+					resultSpec := setTableProps(abundanceFractionSpec, "Total " + fractionLabel + " Fraction in Cluster", true, "1",
+						"Share of the dataset-wide total " + text.to_lower(abundanceLabel) + " contributed by this cluster (0–1).")
+					// Filter out isAnchor annotation
+					resultSpec.annotations = maps.filter(resultSpec.annotations, func(k, v) {
+						return k != "pl7.app/isAnchor"
+					})
+					return resultSpec
+				}()
 		}],
 		storageFormat: "Parquet",
 		partitionKeyLength: 0
-	}, {splitDataAndSpec: true, cpu: defaultConvCpu, mem: defaultConvMem})
+		}, {splitDataAndSpec: true, cpu: defaultConvCpu, mem: defaultConvMem})
 
 	cloneToClusterPf := xsv.importFile(clusteringAnalysis.output("cloneToCluster"), "tsv", {
 		axes: [{
@@ -317,19 +317,19 @@ wf.body(func(args) {
 				valueType: "String",
 				domain: clusterIdAxisSpec.domain,
 				annotations: clusterIdAxisSpec.annotations
-			}, "Cluster Id", "hidden", undefined)
+				}, "Cluster Id", "hidden", undefined)
 		}],
 		storageFormat: "Parquet",
 		partitionKeyLength: 0
-	}, {splitDataAndSpec: true, cpu: defaultConvCpu, mem: defaultConvMem})
+		}, {splitDataAndSpec: true, cpu: defaultConvCpu, mem: defaultConvMem})
 
 	cloneToClusterLinkPf := xsv.importFile(clusteringAnalysis.output("cloneToCluster"), "tsv", {
 		axes: [{
 			column: "clusterId",
-        	spec: clusterIdAxisSpec
-        }, {
-			column: "clonotypeKey",
-			spec: datasetSpec.axesSpec[1]
+			spec: clusterIdAxisSpec
+			}, {
+				column: "clonotypeKey",
+				spec: datasetSpec.axesSpec[1]
 		}],
 		columns: [{
 			column: "link",
@@ -339,34 +339,34 @@ wf.body(func(args) {
 				annotations: {
 					"pl7.app/isLinkerColumn": "true"
 				}
-			}, "Clone to cluster link", "hidden", undefined)
+				}, "Clone to cluster link", "hidden", undefined)
 		}],
 		storageFormat: "Parquet",
 		partitionKeyLength: 0
-	}, {splitDataAndSpec: true, cpu: defaultConvCpu, mem: defaultConvMem})
+		}, {splitDataAndSpec: true, cpu: defaultConvCpu, mem: defaultConvMem})
 
 	seqColumns := [
-	{
-		column: "size",
-		spec: setTableProps({
-			name: "pl7.app/clustering/clusterSize",
-			valueType: "Int",
-			annotations: {
-				"pl7.app/label": "Cluster Size"
+		{
+			column: "size",
+			spec: setTableProps({
+				name: "pl7.app/clustering/clusterSize",
+				valueType: "Int",
+				annotations: {
+					"pl7.app/label": "Cluster Size"
+				}
+				}, "Cluster Size", true, "3000",
+				"Number of distinct clonotypes assigned to this cluster.")
+		}, {
+			column: "clusterLabel",
+			spec: {
+				name: "pl7.app/label",
+				valueType: "String",
+				annotations: {
+					"pl7.app/label": "Cluster Id",
+					"pl7.app/table/visibility": "default",
+					"pl7.app/description": "Identifier of the cluster, taken from its medoid — the cluster member closest to the consensus centre."
+				}
 			}
-		}, "Cluster Size", true, "3000",
-			"Number of distinct clonotypes assigned to this cluster.")
-	}, {
-		column: "clusterLabel",
-		spec: {
-			name: "pl7.app/label",
-			valueType: "String",
-			annotations: {
-				"pl7.app/label": "Cluster Id",
-				"pl7.app/table/visibility": "default",
-				"pl7.app/description": "Identifier of the cluster, taken from its medoid — the cluster member closest to the consensus centre."
-			}
-		}
 	}]
 
 	// Add sequence columns.
@@ -384,10 +384,10 @@ wf.body(func(args) {
 	centroidLabel := "Theoretical Centroid "
 	// Column-header definitions (rendered as hover tooltips via "pl7.app/description").
 	centroidDesc := "Per-column consensus of the cluster's aligned members (kalign MSA). " +
-		"May contain 'X' at low-confidence positions and need not match any observed member; " +
-		"distance-to-centroid and cluster radius are measured against it."
+	"May contain 'X' at low-confidence positions and need not match any observed member; " +
+	"distance-to-centroid and cluster radius are measured against it."
 	referenceCentroidDesc := "The real cluster member closest to the theoretical centroid (the medoid). " +
-		"Made entirely of observed residues, so it is directly synthesizable."
+	"Made entirely of observed residues, so it is directly synthesizable."
 	for nr, seq in sequencesRef {
 		spec := maps.clone(columns.getSpec(seq))
 		baseLabel := spec.annotations["pl7.app/label"]
@@ -409,9 +409,9 @@ wf.body(func(args) {
 					"pl7.app/clustering/sequenceContent": "centroid"
 				}),
 				annotations: spec.annotations
-			// Theoretical centroid is "optional" (present in the PFrame, hidden in the
-			// table by default); the Reference Centroid below stays default-visible.
-			}, centroidLabel + baseLabel, false, "4000", centroidDesc)
+				// Theoretical centroid is "optional" (present in the PFrame, hidden in the
+				// table by default); the Reference Centroid below stays default-visible.
+				}, centroidLabel + baseLabel, false, "4000", centroidDesc)
 		})
 
 		// Reference centroid (medoid): a real member sequence closest to the cluster
@@ -426,7 +426,7 @@ wf.body(func(args) {
 					"pl7.app/clustering/sequenceContent": "referenceCentroid"
 				}),
 				annotations: spec.annotations
-			}, "Reference Centroid " + baseLabel, true, "4000", referenceCentroidDesc)
+				}, "Reference Centroid " + baseLabel, true, "4000", referenceCentroidDesc)
 		})
 	}
 
@@ -438,7 +438,7 @@ wf.body(func(args) {
 		columns: seqColumns,
 		storageFormat: "Parquet",
 		partitionKeyLength: 0
-	}, {splitDataAndSpec: true, cpu: defaultConvCpu, mem: defaultConvMem})
+		}, {splitDataAndSpec: true, cpu: defaultConvCpu, mem: defaultConvMem})
 
 	distancesPf := xsv.importFile(clusteringAnalysis.output("distanceToCentroid"), "tsv", {
 		axes: [{
@@ -460,12 +460,12 @@ wf.body(func(args) {
 					"pl7.app/rankingOrder": "decreasing",
 					"pl7.app/format": ".2f"
 				}
-			}, "Distance to centroid", false, undefined,
+				}, "Distance to centroid", false, undefined,
 				"Profile distance (0–1) from each clonotype to its cluster's theoretical centroid over the kalign MSA; 0 means identical to the consensus profile.")
 		}],
 		storageFormat: "Parquet",
 		partitionKeyLength: 0
-	}, {splitDataAndSpec: true, cpu: defaultConvCpu, mem: defaultConvMem})
+		}, {splitDataAndSpec: true, cpu: defaultConvCpu, mem: defaultConvMem})
 
 	clusterRadiusPf := xsv.importFile(clusteringAnalysis.output("clusterRadius"), "tsv", {
 		axes: [{
@@ -483,12 +483,12 @@ wf.body(func(args) {
 					"pl7.app/max": "1",
 					"pl7.app/format": ".2f"
 				}
-			}, "Cluster radius", true, "2900",
+				}, "Cluster radius", true, "2900",
 				"Largest distance-to-centroid among the cluster's members — a compactness measure (0–1; smaller is tighter).")
 		}],
 		storageFormat: "Parquet",
 		partitionKeyLength: 0
-	}, {splitDataAndSpec: true, cpu: defaultConvCpu, mem: defaultConvMem})
+		}, {splitDataAndSpec: true, cpu: defaultConvCpu, mem: defaultConvMem})
 
 	// Block label (custom overrides default), used as the trace step label below.
 	traceLabel := args.customBlockLabel
@@ -530,16 +530,16 @@ wf.body(func(args) {
 	deanonimizedAbundancesTopTsv := abundancesTopDeanonimization.output("deanonimizedTsv")
 
 	abundancesTopPf := xsv.importFile(deanonimizedAbundancesTopTsv, "tsv", {
-			axes: [{
-				column: "sampleId",
-				spec: abundanceSpec.axesSpec[0]
+		axes: [{
+			column: "sampleId",
+			spec: abundanceSpec.axesSpec[0]
 			}, {
 				column: "clusterId",
 				spec: clusterIdAxisSpec
-			}],
-			columns: [{
-				column: "abundance",
-				spec: setTableProps(ac, abundanceLabel + " in Cluster", false, undefined)
+		}],
+		columns: [{
+			column: "abundance",
+			spec: setTableProps(ac, abundanceLabel + " in Cluster", false, undefined)
 			},
 			{
 				column: "abundance_normalized",
@@ -554,11 +554,11 @@ wf.body(func(args) {
 						annotations: {
 							"pl7.app/abundance/normalized": "true"
 						}
-					}), text.re_replace("Number", abundanceLabel, "Fraction") + " in Cluster", false, undefined)
+						}), text.re_replace("Number", abundanceLabel, "Fraction") + " in Cluster", false, undefined)
 				}()
-			}],
-			storageFormat: "Parquet",
-			partitionKeyLength: 1
+		}],
+		storageFormat: "Parquet",
+		partitionKeyLength: 1
 		}, {splitDataAndSpec: true, cpu: defaultConvCpu, mem: defaultConvMem})
 
 	clusterToSeqTopPf := xsv.importFile(clusteringAnalysis.output("clusterToSeqTop"), "tsv", {
@@ -569,7 +569,7 @@ wf.body(func(args) {
 		columns: seqColumns,
 		storageFormat: "Parquet",
 		partitionKeyLength: 0
-	}, {splitDataAndSpec: true, cpu: defaultConvCpu, mem: defaultConvMem})
+		}, {splitDataAndSpec: true, cpu: defaultConvCpu, mem: defaultConvMem})
 
 	clusterRadiusTopPf := xsv.importFile(clusteringAnalysis.output("clusterRadiusTop"), "tsv", {
 		axes: [{
@@ -587,11 +587,11 @@ wf.body(func(args) {
 					"pl7.app/max": "1",
 					"pl7.app/format": ".2f"
 				}
-			}, "Cluster radius", true, undefined)
+				}, "Cluster radius", true, undefined)
 		}],
 		storageFormat: "Parquet",
 		partitionKeyLength: 0
-	}, {splitDataAndSpec: true, cpu: defaultConvCpu, mem: defaultConvMem})
+		}, {splitDataAndSpec: true, cpu: defaultConvCpu, mem: defaultConvMem})
 
 	bubblePlotPfBuilder := pframes.pFrameBuilder()
 	for pf in [abundancesTopPf, clusterToSeqTopPf, clusterRadiusTopPf] {
@@ -629,14 +629,14 @@ wf.body(func(args) {
 							"pl7.app/vdj/scClonotypeChain/index": chainIndex
 						}),
 						annotations: {}
-					}, baseLabelForSeq, true, "10")
+						}, baseLabelForSeq, true, "10")
 				})
 			}
 			return cols
 		}(),
 		storageFormat: "Parquet",
 		partitionKeyLength: 0
-	}, {splitDataAndSpec: true, cpu: defaultConvCpu, mem: defaultConvMem})
+		}, {splitDataAndSpec: true, cpu: defaultConvCpu, mem: defaultConvMem})
 
 	msaPf := pframes.pFrameBuilder()
 	i := 0
@@ -648,7 +648,7 @@ wf.body(func(args) {
 	}
 	msaPf = msaPf.build()
 
-	epf := pframes.pFrameBuilder() 
+	epf := pframes.pFrameBuilder()
 	i = 0
 	for pf in [abundancesPf, cloneToClusterPf, cloneToClusterLinkPf, clusterToSeqPf, abundancesPerClusterPf, distancesPf, clusterRadiusPf] {
 		for k, v in pf {
