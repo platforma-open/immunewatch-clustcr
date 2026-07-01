@@ -1,0 +1,39 @@
+{
+  "name": "@platforma-open/milaboratories.tcr-clustering.clustcr-runner",
+  "version": "0.0.0",
+  "description": "clusTCR runner: a docker image (micromamba env + baked run_clustcr.py) for the clustering step.",
+  "files": [
+    "./dist/**/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "build": "pl-pkg build",
+    "prepublishOnly": "pl-pkg prepublish",
+    "do-pack": "shx rm -f *.tgz && pl-pkg build && pnpm pack && shx mv platforma-open*.tgz package.tgz"
+  },
+  "devDependencies": {
+    "@platforma-sdk/package-builder": "catalog:",
+    "shx": "catalog:"
+  },
+  "block-software": {
+    "entrypoints": {
+      "runner": {
+        "docker": {
+          "artifact": {
+            "type": "docker",
+            "context": "./context",
+            "dockerfile": "Dockerfile"
+          },
+          "cmd": [
+            "micromamba",
+            "run",
+            "-p",
+            "/env",
+            "python",
+            "/app/run_clustcr.py"
+          ]
+        }
+      }
+    }
+  }
+}

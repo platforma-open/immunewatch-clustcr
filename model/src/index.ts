@@ -27,11 +27,11 @@ export type * from "@milaboratories/helpers";
  */
 export type InputSelection =
   | {
-    mode: "single";
-    sequenceRef: SUniversalPColumnId;
-    useVGene: boolean;
-    vGeneRef?: SUniversalPColumnId; // resolved V-gene column for the chosen chain (only when useVGene)
-  }
+      mode: "single";
+      sequenceRef: SUniversalPColumnId;
+      useVGene: boolean;
+      vGeneRef?: SUniversalPColumnId; // resolved V-gene column for the chosen chain (only when useVGene)
+    }
   | { mode: "paired"; betaRef: SUniversalPColumnId; alphaRef: SUniversalPColumnId };
 
 export type BlockData = {

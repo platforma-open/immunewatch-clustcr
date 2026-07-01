@@ -3,12 +3,7 @@ exec := import("@platforma-sdk/workflow-tengo:exec")
 assets := import("@platforma-sdk/workflow-tengo:assets")
 
 math := import("math")
-
-prepareInputSw := assets.importSoftware("@platforma-open/milaboratories.tcr-clustering.software:prepare-input")
-// clusTCR runs as a Python library inside its conda env (entrypoint cmd: ["python"]). The conda
-// package carries no source, so prepare-input surfaces run_clustcr.py (bundled in the software
-// package) as a file output, and the clustering step addFile's it into the conda env to run it.
-clustcrSw := assets.importSoftware("@platforma-open/milaboratories.software-clustcr:main")
+clustcrRunnerSw := assets.importSoftware("@platforma-open/milaboratories.tcr-clustering.clustcr-runner:runner")
 processResultsSw := assets.importSoftware("@platforma-open/milaboratories.tcr-clustering.software:process-results")
 createEmptyFilesSw := assets.importSoftware("@platforma-open/milaboratories.tcr-clustering.software:create-empty-files")
 
@@ -87,48 +82,38 @@ self.body(func(inputs) {
 			isEmpty: true
 		}
 	} else {
-		// Step 1: dedup the clustering columns to unique rows -> input.csv + dedup_mapping.tsv.
-		prep := exec.builder().
-			software(prepareInputSw).
-			mem(string(int(math.max(16, baseMemGiB / 4))) + "GiB").
-			cpu(1).
-			addFile("input.tsv", seqTable).
-			saveFile("input.csv").
-			saveFile("dedup_mapping.tsv").
-			saveFile("run_clustcr.py").
-			run()
-
-		// Step 2: cluster the unique sequences with clusTCR, in its conda env. run_clustcr.py is
-		// staged from prepare-input's output (the conda env ships no source of its own). clusTCR is
-		// non-deterministic, so save the raw assignment in the output: identical inputs then dedup
-		// by content instead of re-running (CID-conflict guard).
+		// Step 1: dedup + cluster. The clustcr-runner docker image (env + run_clustcr.py baked in)
+		// takes the raw per-clonotype table, dedups the clustering columns to unique sequences, runs
+		// clusTCR, and emits the assignment (output.csv) + the representative->clonotype dedup mapping
+		// (dedup_mapping.tsv, consumed by process-results). clusTCR is non-deterministic, so the raw
+		// assignment is saved in the output: identical inputs then dedup by content (CID-conflict guard).
 		clustering := exec.builder().
-			software(clustcrSw).
+			software(clustcrRunnerSw).
 			mem(string(baseMemGiB) + "GiB").
 			cpu(cpu).
 			printErrStreamToStdout().
-			addFile("run_clustcr.py", prep.getFile("run_clustcr.py")).
-			addFile("input.csv", prep.getFile("input.csv")).
-			arg("run_clustcr.py").
-			arg("input.csv").
+			addFile("input.tsv", seqTable).
+			arg("input.tsv").
 			arg("output.csv").
+			arg("dedup_mapping.tsv").
 			arg(string(cpu)).
 			arg("--inflation").arg(string(inflation)).
 			saveFile("output.csv").
+			saveFile("dedup_mapping.tsv").
 			saveStdoutStream().
 			run()
 
 		clusters := clustering.getFile("output.csv")
 		clustcrLog := clustering.getStdoutStream()
 
-		// Step 3: expand to clonotypes, kalign centroid/medoid/distance, medoid-relabel -> TSVs.
+		// Step 2: expand to clonotypes, kalign centroid/medoid/distance, medoid-relabel -> TSVs.
 		resultBuilder := exec.builder().
 			software(processResultsSw).
 			mem(string(int(math.max(32, baseMemGiB / 2))) + "GiB").
 			cpu(8).
 			addFile("clusters.csv", clusters).
 			addFile("cloneTable.tsv", cloneTable).
-			addFile("dedup_mapping.tsv", prep.getFile("dedup_mapping.tsv")).
+			addFile("dedup_mapping.tsv", clustering.getFile("dedup_mapping.tsv")).
 			arg("--consensus-threshold").arg(string(consensusThreshold))
 
 		if !weightByAbundance {

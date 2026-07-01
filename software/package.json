@@ -19,24 +19,6 @@
   },
   "block-software": {
     "entrypoints": {
-      "prepare-input": {
-        "binary": {
-          "artifact": {
-            "type": "python",
-            "registry": "platforma-open",
-            "environment": "@platforma-open/milaboratories.runenv-python-3:3.12.10-clustering",
-            "dependencies": {
-              "toolset": "pip",
-              "requirements": "requirements.txt"
-            },
-            "root": "./src"
-          },
-          "cmd": [
-            "python",
-            "{pkg}/prepare_input.py"
-          ]
-        }
-      },
       "process-results": {
         "binary": {
           "artifact": {

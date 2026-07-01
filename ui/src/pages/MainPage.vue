@@ -180,8 +180,9 @@ const clusterAxis = computed<AxisId>(() => ({
         @update:model-value="onClusterByChange"
       >
         <template #tooltip>
-          What to cluster on. <b>CDR3</b> clusters on the CDR3 amino-acid sequence;
-          <b>+ V gene</b> additionally ensures clusters within the same V family;
+          What to cluster on.<br />
+          <b>CDR3</b> clusters on the CDR3 amino-acid sequence.<br />
+          <b>+ V gene</b> additionally ensures clusters within the same V family.<br />
           <b>Paired (α + β)</b> clusters on both chains together (single-cell only).
         </template>
       </PlDropdown>

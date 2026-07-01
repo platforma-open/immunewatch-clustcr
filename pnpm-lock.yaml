@@ -30,9 +30,6 @@ catalogs:
     '@platforma-open/milaboratories.runenv-python-3':
       specifier: ^1.7.3
       version: 1.10.7
-    '@platforma-open/milaboratories.software-clustcr':
-      specifier: 0.1.0
-      version: 0.1.0
     '@platforma-sdk/block-tools':
       specifier: 2.11.5
       version: 2.11.5
@@ -118,6 +115,15 @@ importers:
       '@platforma-sdk/block-tools':
         specifier: 'catalog:'
         version: 2.11.5(@types/node@26.0.1)
+      shx:
+        specifier: 'catalog:'
+        version: 0.4.0
+
+  clustcr-runner:
+    devDependencies:
+      '@platforma-sdk/package-builder':
+        specifier: 'catalog:'
+        version: 3.14.0
       shx:
         specifier: 'catalog:'
         version: 0.4.0
@@ -232,9 +238,9 @@ importers:
 
   workflow:
     dependencies:
-      '@platforma-open/milaboratories.software-clustcr':
-        specifier: 'catalog:'
-        version: 0.1.0
+      '@platforma-open/milaboratories.tcr-clustering.clustcr-runner':
+        specifier: workspace:*
+        version: link:../clustcr-runner
       '@platforma-open/milaboratories.tcr-clustering.software':
         specifier: workspace:*
         version: link:../software
@@ -1661,9 +1667,6 @@ packages:
 
   '@platforma-open/milaboratories.runenv-python-3@1.10.7':
     resolution: {integrity: sha512-Rc6iBMfzMh9/kAC44Rv2sQY5svk8K95ty7SdGdEYMlftZBT2rzboc1LP1UcQtWN3ndU2i4Giu+QbKs0MwjHUWQ==}
-
-  '@platforma-open/milaboratories.software-clustcr@0.1.0':
-    resolution: {integrity: sha512-VWCGFLK5IJEYiAvibLUutJ1fNzX2FjCSa49TxIKvsvs0sTiSDhqCXihZFtJi+r0x6wO2D771QQALOJLZQC9q2Q==}
 
   '@platforma-open/milaboratories.software-ptabler.schema@1.15.15':
     resolution: {integrity: sha512-zvPuRZgQyxjED+txJVgWHUOPeRp4TG1jOrJOtuw9WnwxFiHNjQHIB+Xe1j8f6skgMqZgRSQvEbhRvqbWjGmhKQ==}
@@ -8118,7 +8121,7 @@ snapshots:
       oxlint: 1.63.0
       oxlint-plugin-eslint: 1.63.0
       rolldown: 1.1.3
-      rolldown-plugin-dts: 0.26.0(rolldown@1.1.3)(typescript@5.9.3)(vue-tsc@3.3.5(typescript@6.0.3))
+      rolldown-plugin-dts: 0.26.0(rolldown@1.1.3)(typescript@5.9.3)(vue-tsc@3.3.5(typescript@5.9.3))
       rollup-plugin-copy: 3.5.0
       rollup-plugin-sourcemaps2: 0.5.8(@types/node@26.0.1)(rollup@4.62.2)
       typescript: 5.9.3
@@ -8159,7 +8162,7 @@ snapshots:
       oxlint: 1.63.0
       oxlint-plugin-eslint: 1.63.0
       rolldown: 1.1.3
-      rolldown-plugin-dts: 0.26.0(rolldown@1.1.3)(typescript@5.9.3)(vue-tsc@3.3.5(typescript@6.0.3))
+      rolldown-plugin-dts: 0.26.0(rolldown@1.1.3)(typescript@5.9.3)(vue-tsc@3.3.5(typescript@5.9.3))
       rollup-plugin-copy: 3.5.0
       rollup-plugin-sourcemaps2: 0.5.8(@types/node@26.0.1)(rollup@4.62.2)
       typescript: 5.9.3
@@ -8200,7 +8203,7 @@ snapshots:
       oxlint: 1.63.0
       oxlint-plugin-eslint: 1.63.0
       rolldown: 1.1.3
-      rolldown-plugin-dts: 0.26.0(rolldown@1.1.3)(typescript@5.9.3)(vue-tsc@3.3.5(typescript@6.0.3))
+      rolldown-plugin-dts: 0.26.0(rolldown@1.1.3)(typescript@5.9.3)(vue-tsc@3.3.5(typescript@5.9.3))
       rollup-plugin-copy: 3.5.0
       rollup-plugin-sourcemaps2: 0.5.8(@types/node@26.0.1)(rollup@4.62.2)
       typescript: 5.9.3
@@ -8695,8 +8698,6 @@ snapshots:
       '@platforma-open/milaboratories.runenv-python-3.12.10-sccoda': 1.3.6
       '@platforma-open/milaboratories.runenv-python-3.12.10-scientific-slim': 1.1.0
       '@platforma-open/milaboratories.runenv-python-3.12.10-torch-cuda': 0.2.0
-
-  '@platforma-open/milaboratories.software-clustcr@0.1.0': {}
 
   '@platforma-open/milaboratories.software-ptabler.schema@1.15.15':
     dependencies:
@@ -13854,7 +13855,7 @@ snapshots:
 
   reusify@1.1.0: {}
 
-  rolldown-plugin-dts@0.26.0(rolldown@1.1.3)(typescript@5.9.3)(vue-tsc@3.3.5(typescript@6.0.3)):
+  rolldown-plugin-dts@0.26.0(rolldown@1.1.3)(typescript@5.9.3)(vue-tsc@3.3.5(typescript@5.9.3)):
     dependencies:
       '@babel/generator': 8.0.0
       '@babel/helper-validator-identifier': 8.0.2

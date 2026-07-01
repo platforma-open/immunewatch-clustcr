@@ -10,7 +10,7 @@
     "check": "pl-tengo check"
   },
   "dependencies": {
-    "@platforma-open/milaboratories.software-clustcr": "catalog:",
+    "@platforma-open/milaboratories.tcr-clustering.clustcr-runner": "workspace:*",
     "@platforma-open/milaboratories.tcr-clustering.software": "workspace:*",
     "@platforma-sdk/workflow-tengo": "catalog:"
   },
