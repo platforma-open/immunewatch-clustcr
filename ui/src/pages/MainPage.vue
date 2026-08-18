@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { PlMultiSequenceAlignment } from "@milaboratories/multi-sequence-alignment";
 import strings from "@milaboratories/strings";
+import { findClusterByOption } from "@platforma-open/milaboratories.tcr-clustering-clusttcr.model";
 import type {
   AxisId,
   PColumnPredicate,
@@ -55,17 +56,23 @@ const onRowClicked = reactive((key?: PTableKey) => {
 });
 
 function setInput(inputRef?: PlRef) {
+  // PlDropdownRef also emits `update:model-value` on mount with an UNCHANGED ref, so compare before
+  // clearing — an unconditional clear here wipes a restored selection on project reopen.
+  const prev = app.model.data.datasetRef;
+  const sameRef = prev?.blockId === inputRef?.blockId && prev?.name === inputRef?.name;
   app.model.data.datasetRef = inputRef;
   // The "Cluster by" choice is scoped to a dataset — clear it when the dataset changes so the
   // user re-picks against the new options (and we never carry an unresolvable ref into the run).
-  app.model.data.inputSelection = undefined;
+  if (!sameRef) app.model.data.inputSelection = undefined;
 }
 
 // "Cluster by" dropdown <-> data.inputSelection (snapshot pattern). The option value is the
 // JSON-encoded InputSelection; on change we parse it back into data.inputSelection.
-const clusterBy = computed(() =>
-  app.model.data.inputSelection ? JSON.stringify(app.model.data.inputSelection) : undefined,
+// The offered option matching the stored selection.
+const selectedOption = computed(() =>
+  findClusterByOption(app.model.outputs.clusterByOptions, app.model.data.inputSelection),
 );
+const clusterBy = computed(() => selectedOption.value?.value);
 function onClusterByChange(value?: string) {
   app.model.data.inputSelection = value ? JSON.parse(value) : undefined;
 }
@@ -77,8 +84,8 @@ watch(
   () => app.model.outputs.clusterByOptions,
   (options) => {
     if (!options || options.length === 0) return;
-    const cur = clusterBy.value;
-    if (cur && !options.some((o) => o.value === cur)) {
+    const sel = app.model.data.inputSelection;
+    if (sel && findClusterByOption(options, sel) === undefined) {
       app.model.data.inputSelection = undefined;
     }
   },

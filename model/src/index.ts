@@ -62,6 +62,38 @@ export type BlockData = {
   graphStateBubble: GraphMakerState;
 };
 
+/**
+ * Find the "Cluster by" option that corresponds to a stored selection, and return the option (whose
+ * `value` is the string `PlDropdown` and the option list compare against).
+ *
+ * Compares the identifying FIELDS instead of stringifying the selection: persisted `data` comes back
+ * with its object keys alphabetically sorted, so `JSON.stringify(selection)` no longer equals the
+ * option's own JSON and a restored selection reads as "not offered" after a project reopen.
+ */
+export function findClusterByOption(
+  options: { label: string; value: string }[] | undefined,
+  selection: InputSelection | undefined,
+): { label: string; value: string } | undefined {
+  if (options === undefined || selection === undefined) return undefined;
+  return options.find((o) => {
+    let parsed: InputSelection;
+    try {
+      parsed = JSON.parse(o.value) as InputSelection;
+    } catch {
+      return false;
+    }
+    if (parsed.mode === "single" && selection.mode === "single")
+      return (
+        parsed.sequenceRef === selection.sequenceRef &&
+        parsed.useVGene === selection.useVGene &&
+        parsed.vGeneRef === selection.vGeneRef
+      );
+    if (parsed.mode === "paired" && selection.mode === "paired")
+      return parsed.betaRef === selection.betaRef && parsed.alphaRef === selection.alphaRef;
+    return false;
+  });
+}
+
 export function getDefaultBlockLabel(data: { inputLabel: string; inflation: number }): string {
   const parts: string[] = [];
   if (data.inputLabel) parts.push(data.inputLabel);
@@ -119,25 +151,32 @@ export const platforma = BlockModelV3.create(dataModel)
     if (sel.mode === "paired" && (!sel.betaRef || !sel.alphaRef))
       throw new Error("Paired clustering requires both the β and α CDR3 columns");
 
-    // Clamp engine params to their valid ranges (canonicalize so the staleness gate doesn't
-    // fire on out-of-range edits the workflow would clamp anyway).
-    const inflation = Math.min(5.0, Math.max(1.01, data.inflation));
-    const consensusThreshold = Math.min(1, Math.max(0, data.consensusThreshold));
+    // Gate Run on the numeric params: throwing makes the block not-runnable (Run disabled, message
+    // surfaced) rather than silently coercing a cleared or out-of-range field. The
+    // `!(… >= … && … <= …)` form also catches a blank field (undefined) or NaN — a plain
+    // `< || >` would let those through as false.
+    if (!(data.inflation >= 1.01 && data.inflation <= 5.0))
+      throw new Error("MCL inflation must be between 1.01 and 5.0");
+    if (!(data.consensusThreshold >= 0 && data.consensusThreshold <= 1))
+      throw new Error("Consensus threshold must be between 0 and 1");
 
     return {
       defaultBlockLabel: data.defaultBlockLabel,
       customBlockLabel: data.customBlockLabel,
       datasetRef: data.datasetRef,
       inputSelection: sel,
-      inflation,
-      consensusThreshold,
+      inflation: data.inflation,
+      consensusThreshold: data.consensusThreshold,
       weightByAbundance: data.weightByAbundance,
       mem: data.mem,
       cpu: data.cpu,
     };
   })
 
-  // Dataset picker: TCR clonotype datasets (bulk + single-cell). No peptide (variantKey).
+  // Dataset picker: TCR α/β clonotype datasets (bulk + single-cell). No peptide (variantKey).
+  // Only TCR α/β is offered — IG (BCR) and TCR γ/δ are dropped. Bulk anchors are per-chain
+  // (clonotypeKey domain `pl7.app/vdj/chain` = TCRAlpha/TCRBeta); single-cell anchors are
+  // per-receptor (scClonotypeKey domain `pl7.app/vdj/receptor` = TCRAB).
   .output("datasetOptions", (ctx) => {
     const options = ctx.resultPool.getOptions(
       [
@@ -156,10 +195,24 @@ export const platforma = BlockModelV3.create(dataModel)
       },
     );
 
-    // Exclude this block's OWN exported cluster axis from the input picker.
+    // Bulk anchors carry the chain per clonotypeKey; keep only the TCR α/β chains.
+    const TCR_AB_CHAINS = new Set(["TCRAlpha", "TCRBeta"]);
+
     return options.filter((opt) => {
       const keyAxis = ctx.resultPool.getPColumnSpecByRef(opt.ref)?.axesSpec[1];
-      return keyAxis?.domain?.["pl7.app/clustering/algorithm"] === undefined;
+      if (keyAxis === undefined) return false;
+      // Exclude this block's OWN exported cluster axis from the input picker.
+      if (keyAxis.domain?.["pl7.app/clustering/algorithm"] !== undefined) return false;
+      // Bulk: per-chain anchor → keep only TCR α/β (drop IG, TCR γ/δ).
+      if (keyAxis.name === "pl7.app/vdj/clonotypeKey") {
+        return TCR_AB_CHAINS.has(keyAxis.domain?.["pl7.app/vdj/chain"] ?? "");
+      }
+      // Single-cell: per-receptor anchor → keep only the TCR α/β receptor (drop IG, TCR γ/δ). The
+      // "Cluster by" dropdown then offers the per-chain CDR3 options plus Paired (α + β).
+      if (keyAxis.name === "pl7.app/vdj/scClonotypeKey") {
+        return keyAxis.domain?.["pl7.app/vdj/receptor"] === "TCRAB";
+      }
+      return false;
     });
   })
 

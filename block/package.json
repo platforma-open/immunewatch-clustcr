@@ -40,13 +40,14 @@
         "airr",
         "downstream",
         "clustering",
-        "tcr"
+        "tcr",
+        "tcr-clustering"
       ],
       "marketplaceRanking": 12330,
       "organization": {
         "name": "MiLaboratories Inc",
         "url": "https://milaboratories.com/",
-        "logo": "file:../logos/organization-logo.png"
+        "logo": "file:../logos/immunewatch-logo.svg"
       },
       "supportedPlatforms": [
         "linux-x64",
