@@ -3,9 +3,10 @@
 # (containers.pl-open.science). Consumed as a docker-only software by the clustering step — there
 # is no local/binary fallback, so it requires docker at runtime (k8s, or build:dev-remote locally).
 #
-# NOTE: verify the base-image tag on the first `build:dev-remote` — mambaorg/micromamba tags track
-# micromamba releases; adjust if `2.3.2-0` is not present.
-FROM mambaorg/micromamba:2.3.2-0
+# Base-image tag: mambaorg/micromamba tags are `<version>` (optionally plus a distro, e.g.
+# `2.3.2-ubuntu24.04`) — there is no `-<build>` suffix. Bare version matches the workspace
+# convention (cf. 3d-structure-prediction/software/Dockerfile on micromamba 1.5.10).
+FROM mambaorg/micromamba:2.3.2
 USER root
 
 # Build the clusTCR environment at /env from the conda spec (same deps as support/software-conda).
