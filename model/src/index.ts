@@ -385,7 +385,7 @@ export const platforma = BlockModelV3.create(dataModel)
 
   .output("isRunning", (ctx) => ctx.outputs?.getIsReadyOrError() === false)
 
-  .title(() => "TCR Clustering")
+  .title(() => "clusTCR")
 
   .subtitle((ctx) => ctx.data.customBlockLabel || ctx.data.defaultBlockLabel)
 
