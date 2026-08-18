@@ -1,5 +1,5 @@
 {
-  "name": "@platforma-open/milaboratories.tcr-clustering.clustcr-runner",
+  "name": "@platforma-open/milaboratories.tcr-clustering-clusttcr.clustcr-runner",
   "version": "0.0.0",
   "description": "clusTCR runner: a docker image (micromamba env + baked run_clustcr.py) for the clustering step.",
   "files": [

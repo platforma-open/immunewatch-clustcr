@@ -1,5 +1,5 @@
 {
-  "name": "@platforma-open/milaboratories.tcr-clustering.software",
+  "name": "@platforma-open/milaboratories.tcr-clustering-clusttcr.software",
   "version": "0.0.0",
   "files": [
     "./dist/**/*"

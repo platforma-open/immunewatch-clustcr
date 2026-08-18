@@ -1,5 +1,5 @@
 {
-  "name": "@platforma-open/milaboratories.tcr-clustering.test",
+  "name": "@platforma-open/milaboratories.tcr-clustering-clusttcr.test",
   "version": "0.0.0",
   "private": true,
   "description": "Block tests",
@@ -13,7 +13,7 @@
     "check": "ts-builder check --target block-test"
   },
   "dependencies": {
-    "this-block": "workspace:@platforma-open/milaboratories.tcr-clustering@*"
+    "this-block": "workspace:@platforma-open/milaboratories.tcr-clustering-clusttcr@*"
   },
   "devDependencies": {
     "@milaboratories/ts-builder": "catalog:",

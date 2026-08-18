@@ -102,13 +102,13 @@ importers:
 
   block:
     dependencies:
-      '@platforma-open/milaboratories.tcr-clustering.model':
+      '@platforma-open/milaboratories.tcr-clustering-clusttcr.model':
         specifier: workspace:*
         version: link:../model
-      '@platforma-open/milaboratories.tcr-clustering.ui':
+      '@platforma-open/milaboratories.tcr-clustering-clusttcr.ui':
         specifier: workspace:*
         version: link:../ui
-      '@platforma-open/milaboratories.tcr-clustering.workflow':
+      '@platforma-open/milaboratories.tcr-clustering-clusttcr.workflow':
         specifier: workspace:*
         version: link:../workflow
     devDependencies:
@@ -174,7 +174,7 @@ importers:
   test:
     dependencies:
       this-block:
-        specifier: workspace:@platforma-open/milaboratories.tcr-clustering@*
+        specifier: workspace:@platforma-open/milaboratories.tcr-clustering-clusttcr@*
         version: link:../block
       typescript:
         specifier: '*'
@@ -207,7 +207,7 @@ importers:
       '@milaboratories/strings':
         specifier: 'catalog:'
         version: 0.1.2
-      '@platforma-open/milaboratories.tcr-clustering.model':
+      '@platforma-open/milaboratories.tcr-clustering-clusttcr.model':
         specifier: workspace:*
         version: link:../model
       '@platforma-sdk/model':
@@ -238,10 +238,10 @@ importers:
 
   workflow:
     dependencies:
-      '@platforma-open/milaboratories.tcr-clustering.clustcr-runner':
+      '@platforma-open/milaboratories.tcr-clustering-clusttcr.clustcr-runner':
         specifier: workspace:*
         version: link:../clustcr-runner
-      '@platforma-open/milaboratories.tcr-clustering.software':
+      '@platforma-open/milaboratories.tcr-clustering-clusttcr.software':
         specifier: workspace:*
         version: link:../software
       '@platforma-sdk/workflow-tengo':

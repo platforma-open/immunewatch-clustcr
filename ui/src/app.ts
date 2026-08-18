@@ -1,7 +1,7 @@
 import {
   getDefaultBlockLabel,
   platforma,
-} from "@platforma-open/milaboratories.tcr-clustering.model";
+} from "@platforma-open/milaboratories.tcr-clustering-clusttcr.model";
 import { defineAppV3 } from "@platforma-sdk/ui-vue";
 import { watchEffect } from "vue";
 import BubblePlotPage from "./pages/BubblePlotPage.vue";

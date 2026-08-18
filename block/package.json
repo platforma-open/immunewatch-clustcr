@@ -1,5 +1,5 @@
 {
-  "name": "@platforma-open/milaboratories.tcr-clustering",
+  "name": "@platforma-open/milaboratories.tcr-clustering-clusttcr",
   "version": "0.0.0",
   "files": [
     "index.d.ts",
@@ -12,9 +12,9 @@
     "prepublishOnly": "block-tools pack && block-tools publish -r 's3://milab-euce1-prod-pkgs-s3-block-registry/pub/releases/?region=eu-central-1'"
   },
   "dependencies": {
-    "@platforma-open/milaboratories.tcr-clustering.model": "workspace:*",
-    "@platforma-open/milaboratories.tcr-clustering.ui": "workspace:*",
-    "@platforma-open/milaboratories.tcr-clustering.workflow": "workspace:*"
+    "@platforma-open/milaboratories.tcr-clustering-clusttcr.model": "workspace:*",
+    "@platforma-open/milaboratories.tcr-clustering-clusttcr.ui": "workspace:*",
+    "@platforma-open/milaboratories.tcr-clustering-clusttcr.workflow": "workspace:*"
   },
   "devDependencies": {
     "@platforma-sdk/block-tools": "catalog:",
@@ -23,9 +23,9 @@
   "packageManager": "pnpm@9.14.4",
   "block": {
     "components": {
-      "workflow": "@platforma-open/milaboratories.tcr-clustering.workflow/dist/tengo/tpl/main.plj.gz",
-      "model": "@platforma-open/milaboratories.tcr-clustering.model/dist/model.json",
-      "ui": "@platforma-open/milaboratories.tcr-clustering.ui/dist"
+      "workflow": "@platforma-open/milaboratories.tcr-clustering-clusttcr.workflow/dist/tengo/tpl/main.plj.gz",
+      "model": "@platforma-open/milaboratories.tcr-clustering-clusttcr.model/dist/model.json",
+      "ui": "@platforma-open/milaboratories.tcr-clustering-clusttcr.ui/dist"
     },
     "meta": {
       "title": "TCR Clustering",
