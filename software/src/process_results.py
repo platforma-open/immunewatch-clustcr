@@ -57,7 +57,12 @@ sequencesTsv = "sequences.tsv"
 
 # sampleId, clonotypeKey, clonotypeKeyLabel,sequence_..., 
 # ...VGene, JGene
-cloneTable = pl.read_csv(cloneTableTsv, separator="\t")
+cloneTable = pl.read_csv(cloneTableTsv, separator="\t", infer_schema_length=0)
+# Keys are read as strings (infer_schema_length=0) so the joins against clusters.csv and
+# dedup_mapping.tsv can never hit Int/Utf8 dtype mismatches on numeric-looking clonotypeKeys;
+# abundance is the only column used numerically, so cast it back explicitly.
+if "abundance" in cloneTable.columns:
+    cloneTable = cloneTable.with_columns(pl.col("abundance").cast(pl.Float64, strict=False))
 
 # Get all sequence columns if we have them
 sequence_cols = [col for col in cloneTable.columns 
@@ -86,15 +91,15 @@ cloneTable = cloneTable.with_columns(
 # step below maps each representative back to every clonotype sharing its sequence. clusterId is the
 # provisional integer here — it is relabelled to the cluster's medoid clonotypeKey after the kalign
 # pass (see "Medoid relabel" below).
-clusters = pl.read_csv(clustersCsv, separator=",").rename(
+clusters = pl.read_csv(clustersCsv, separator=",", infer_schema_length=0).rename(
     {"seq_id": "clonotypeKey", "cluster": "clusterId"}
-).with_columns(pl.col("clusterId").cast(pl.Utf8))
+)
 
 # --- Expand de-duplicated clusters back to all original clonotypeKeys ---
 # run_clustcr.py clustered only the UNIQUE sequences (one representative per group of identical
 # clustering keys) and emitted dedup_mapping.tsv (representativeKey -> clonotypeKey). Expand each
 # representative back to every clonotypeKey that shares its sequence.
-dedup_mapping = pl.read_csv(dedupMappingTsv, separator="\t")
+dedup_mapping = pl.read_csv(dedupMappingTsv, separator="\t", infer_schema_length=0)
 # dedup_mapping has columns: representativeKey, clonotypeKey
 
 num_representatives = clusters.select(pl.col("clonotypeKey").n_unique()).item()
@@ -456,15 +461,19 @@ def compute_centroid_and_distance(clusters_df: pl.DataFrame,
             dist_keys.append(k)
             dist_values.append(norm_by_key[k])
 
-        # Medoid (reference centroid): argmin D_i, tie-break (min D_i, -w_i, seq), but ONLY
-        # over COMPLETE members — a clone missing a chain (now unpenalized in the distance)
+        # Medoid (reference centroid): argmin D_i, tie-break (min D_i, -w_i, seq, clonotypeKey),
+        # but ONLY over COMPLETE members — a clone missing a chain (now unpenalized in the distance)
         # must not be chosen as the biological reference. Dropped-by-cap members carry
         # inflated D_i so they don't win the argmin. Fall back to all members only if no
         # member is complete (degenerate cluster where every member lacks some chain).
+        # The final clonotypeKey tie-break is REQUIRED for determinism: members sharing a CDR3
+        # (deduped for clustering, then re-expanded here) tie on (D_i, w_i, seq), so without it
+        # min() would pick by the non-deterministic group_by iteration order — a non-reproducible
+        # medoid = clusterId, which also flips every clusterId-keyed output.
         candidate_keys = [k for k in keys if complete_by_key[k]] or keys
         best_key = min(
             candidate_keys,
-            key=lambda k: (d_total_by_key[k], -weight_by_key[k], seq_by_key[k])
+            key=lambda k: (d_total_by_key[k], -weight_by_key[k], seq_by_key[k], k)
         )
         medoid_clusters.append(cluster_id)
         medoid_keys.append(best_key)
@@ -546,12 +555,11 @@ centroid_cluster_to_seq_cols = [f"centroid_{c}" for c in sequence_cols]
 if sequence_cols:
     # Reference centroid = the medoid member's own per-chain sequences (a real member),
     # mirroring the centroid_* set: reference_centroid_<sequence_N>.
-    ref_source_cols = sequence_cols
     ref_lookup = (
         cloneTable
         .select(
             [pl.col("clonotypeKey").alias("medoid_key")]
-            + [pl.col(c).fill_null("").alias(f"reference_centroid_{c}") for c in ref_source_cols]
+            + [pl.col(c).fill_null("").alias(f"reference_centroid_{c}") for c in sequence_cols]
         )
         .unique("medoid_key", keep="first")
     )
@@ -575,14 +583,6 @@ centroid_sequences_for_cts = cloneTable.select(
     [pl.col('clonotypeKey').alias("centroid_key_cts")] + sequence_cols
 ).unique("centroid_key_cts", keep="first")
 
-# Join clusters with centroid_sequences_for_cts
-# 'clusters' has: clusterId (centroid key), clonotypeKey (member key), size, clusterLabel (centroid's CL-label)
-temp_cluster_to_seq_data = clusters.join(
-    centroid_sequences_for_cts,
-    left_on="clusterId",
-    right_on="centroid_key_cts",
-    how="left" # Keep all clusters
-)
 
 required_cols_cts = ['clusterId', 'clusterLabel', 'size'] + sequence_cols
 # Select necessary columns. The sequence_cols will be from the centroid.
@@ -647,7 +647,12 @@ cluster_abundances = cluster_abundances.with_columns(
     pl.sum('abundance').over('sampleId').alias('total_sample_abundance')
 )
 cluster_abundances = cluster_abundances.with_columns(
-    (pl.col('abundance') / pl.col('total_sample_abundance')).alias('abundance_normalized')
+    # Guard the division: a sample whose abundances all sum to 0 would otherwise yield NaN/inf.
+    # Mirrors the per-cluster fraction guard below.
+    pl.when(pl.col('total_sample_abundance') > 0)
+      .then(pl.col('abundance') / pl.col('total_sample_abundance'))
+      .otherwise(pl.lit(0.0, dtype=pl.Float64))
+      .alias('abundance_normalized')
 )
 cluster_abundances = cluster_abundances.drop('total_sample_abundance')
 

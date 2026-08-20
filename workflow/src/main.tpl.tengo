@@ -1,4 +1,3 @@
-// "hello world"
 wf := import("@platforma-sdk/workflow-tengo:workflow")
 assets:= import("@platforma-sdk/workflow-tengo:assets")
 xsv := import("@platforma-sdk/workflow-tengo:pframes.xsv")
@@ -88,8 +87,6 @@ wf.body(func(args) {
 	datasetSpec := columns.getSpec(args.datasetRef)
 	abundanceSpec := columns.getSpec("abundance")
 
-	isSingleCell := datasetSpec.axesSpec[1].name == "pl7.app/vdj/scClonotypeKey"
-
 	// Ordered CDR3 chain refs. Keep the name `sequencesRef` so the downstream sequence loops are
 	// unchanged. single = [chosen chain]; paired = [β, α] (so sequence_0 = β, sequence_1 = α).
 	sequencesRef := sel.mode == "paired" ? [sel.betaRef, sel.alphaRef] : [sel.sequenceRef]
@@ -162,7 +159,6 @@ wf.body(func(args) {
 		emptyOrNot: emptyOrNot,
 		seqTable: seqTable,
 		cloneTable: cloneTable,
-		isSingleCell: isSingleCell,
 		numSequences: numSequences,
 		inflation: args.inflation,
 		consensusThreshold: args.consensusThreshold,
@@ -501,6 +497,7 @@ wf.body(func(args) {
 		abundanceSpec,
 		{
 			type: "milaboratories.tcr-clustering.clustering",
+			id: blockId,
 			importance: 30,
 			label: traceLabel
 		}
