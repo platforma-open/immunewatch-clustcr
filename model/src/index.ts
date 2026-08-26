@@ -136,6 +136,11 @@ const dataModel = new DataModelBuilder().from<BlockData>("v1").init(() => ({
   },
 }));
 
+/**
+ * Whether the "Paired (α + β)" entry appears in the "Cluster by" dropdown. NOT OFFERED for now.
+ */
+const OFFER_PAIRED: boolean = false;
+
 /** Strip the trailing " Primary" token from a MiXCR single-cell label ("Beta CDR3 aa Primary" -> "Beta CDR3 aa"). */
 function trimPrimary(label: string): string {
   return label.replace(/\s+Primary$/i, "");
@@ -218,7 +223,7 @@ export const platforma = BlockModelV3.create(dataModel)
 
   // The single "Cluster by" dropdown. Options are generated from the dataset's Primary CDR3 aa
   // columns (labelled from MiXCR, "Primary" trimmed), each also offered "+ V gene" when the
-  // dataset carries V-gene columns, plus "Paired (α + β)" for single-cell with both chains.
+  // dataset carries V-gene columns. The paired α+β entry is built but gated off (OFFER_PAIRED).
   // Each option's value is a JSON-encoded InputSelection; the UI parses it into data.inputSelection
   // on the user's gesture (snapshot pattern). The chain name is read from the MiXCR LABEL, never
   // from the scClonotypeChain slot letter (which is diversity-ordered: for αβ, A=Beta, B=Alpha).
@@ -287,7 +292,10 @@ export const platforma = BlockModelV3.create(dataModel)
     }
 
     // Paired (single-cell with both chains). Identify β/α by the MiXCR label, not the slot.
-    if (isSingleCell) {
+    // NOT OFFERED for now (OFFER_PAIRED): the option is undocumented by request, so the UI must not
+    // surface it. Everything behind it still works end to end — the InputSelection union, the
+    // workflow's β-then-α ordering and clusTCR's own alpha= path — so re-enabling is this one flag.
+    if (OFFER_PAIRED && isSingleCell) {
       const beta = cdr3Cols.find((c) => /beta/i.test(c.label ?? ""));
       const alpha = cdr3Cols.find((c) => /alpha/i.test(c.label ?? ""));
       if (beta !== undefined && alpha !== undefined) {
@@ -385,7 +393,7 @@ export const platforma = BlockModelV3.create(dataModel)
 
   .output("isRunning", (ctx) => ctx.outputs?.getIsReadyOrError() === false)
 
-  .title(() => "clusTCR")
+  .title(() => "ClusTCR")
 
   .subtitle((ctx) => ctx.data.customBlockLabel || ctx.data.defaultBlockLabel)
 

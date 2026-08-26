@@ -18,6 +18,24 @@
   },
   "block-software": {
     "entrypoints": {
+      "cluster": {
+        "binary": {
+          "artifact": {
+            "type": "python",
+            "registry": "platforma-open",
+            "environment": "@platforma-open/milaboratories.runenv-python-3:3.10.21-clustcr",
+            "dependencies": {
+              "toolset": "pip",
+              "requirements": "requirements.txt"
+            },
+            "root": "./src_clustcr"
+          },
+          "cmd": [
+            "python",
+            "{pkg}/run_clustcr.py"
+          ]
+        }
+      },
       "process-results": {
         "binary": {
           "artifact": {

@@ -3,7 +3,7 @@ exec := import("@platforma-sdk/workflow-tengo:exec")
 assets := import("@platforma-sdk/workflow-tengo:assets")
 
 math := import("math")
-clustcrRunnerSw := assets.importSoftware("@platforma-open/milaboratories.tcr-clustering-clusttcr.clustcr-runner:runner")
+clustcrRunnerSw := assets.importSoftware("@platforma-open/milaboratories.tcr-clustering-clusttcr.software:cluster")
 processResultsSw := assets.importSoftware("@platforma-open/milaboratories.tcr-clustering-clusttcr.software:process-results")
 createEmptyFilesSw := assets.importSoftware("@platforma-open/milaboratories.tcr-clustering-clusttcr.software:create-empty-files")
 
@@ -77,8 +77,9 @@ self.body(func(inputs) {
 			isEmpty: true
 		}
 	} else {
-		// Step 1: dedup + cluster. The clustcr-runner docker image (env + run_clustcr.py baked in)
-		// takes the raw per-clonotype table, dedups the clustering columns to unique sequences, runs
+		// Step 1: dedup + cluster. run_clustcr.py on the `3.12.10-clustcr` runenv (clusTCR + faiss-cpu
+		// + polars, installed from PyPI) takes the raw per-clonotype table, dedups the clustering
+		// columns to unique sequences, runs
 		// clusTCR, and emits the assignment (output.csv) + the representative->clonotype dedup mapping
 		// (dedup_mapping.tsv, consumed by process-results). clusTCR is non-deterministic, so the raw
 		// assignment is saved in the output: identical inputs then dedup by content (CID-conflict guard).

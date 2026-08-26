@@ -62,7 +62,7 @@ cloneTable = pl.read_csv(cloneTableTsv, separator="\t", infer_schema_length=0)
 # dedup_mapping.tsv can never hit Int/Utf8 dtype mismatches on numeric-looking clonotypeKeys;
 # abundance is the only column used numerically, so cast it back explicitly.
 if "abundance" in cloneTable.columns:
-    cloneTable = cloneTable.with_columns(pl.col("abundance").cast(pl.Float64, strict=False))
+    cloneTable = cloneTable.with_columns(pl.col("abundance").cast(pl.Int64))
 
 # Get all sequence columns if we have them
 sequence_cols = [col for col in cloneTable.columns 
@@ -123,7 +123,7 @@ clusters = clusters.with_columns(
 labelsTable_for_join = cloneTable.select(
     pl.col('clonotypeKey').alias('clusterId'), # Alias to 'clusterId' to match the left table's key name
     'clusterLabel', # The "CL-XXXX" label associated with this key in cloneTable
-).unique(subset=['clusterId'], keep='first') # Unique on the new 'clusterId' column
+).unique(subset=['clusterId'], keep='first', maintain_order=True) # Unique on the new 'clusterId' column
 
 # --- Compute per-clonotype abundance weight ---
 # Weight = abundance summed over sampleId per clonotypeKey. If there is no
@@ -132,7 +132,7 @@ labelsTable_for_join = cloneTable.select(
 if "abundance" in cloneTable.columns and not no_abundance_weighting:
     clonotype_weights = (
         cloneTable
-        .group_by("clonotypeKey")
+        .group_by("clonotypeKey", maintain_order=True)
         .agg(pl.sum("abundance").cast(pl.Float64).alias("weight"))
         .with_columns(
             # Guard against null / non-positive total abundance -> fall back to 1.0
@@ -146,7 +146,7 @@ else:
     clonotype_weights = (
         cloneTable
         .select("clonotypeKey")
-        .unique("clonotypeKey", keep="first")
+        .unique("clonotypeKey", keep="first", maintain_order=True)
         .with_columns(pl.lit(1.0, dtype=pl.Float64).alias("weight"))
     )
 
@@ -360,12 +360,12 @@ def compute_centroid_and_distance(clusters_df: pl.DataFrame,
     value_lookup = cloneTable.select(
         [pl.col("clonotypeKey")]
         + [pl.col(c).fill_null("").alias(f"__v_{c}") for c in seq_cols]
-    ).unique("clonotypeKey", keep="first")
+    ).unique("clonotypeKey", keep="first", maintain_order=True)
 
     members = (
         clusters_df
         .select(["clusterId", "clonotypeKey"])
-        .unique(subset=["clusterId", "clonotypeKey"], keep="first")
+        .unique(subset=["clusterId", "clonotypeKey"], keep="first", maintain_order=True)
         .join(value_lookup, on="clonotypeKey", how="left")
         .join(weights_df, on="clonotypeKey", how="left")
         .with_columns(
@@ -376,7 +376,7 @@ def compute_centroid_and_distance(clusters_df: pl.DataFrame,
 
     grouped = (
         members
-        .group_by("clusterId")
+        .group_by("clusterId", maintain_order=True)
         .agg(
             pl.col("clonotypeKey").alias("__keys"),
             pl.col("weight").alias("__weights"),
@@ -561,7 +561,7 @@ if sequence_cols:
             [pl.col("clonotypeKey").alias("medoid_key")]
             + [pl.col(c).fill_null("").alias(f"reference_centroid_{c}") for c in sequence_cols]
         )
-        .unique("medoid_key", keep="first")
+        .unique("medoid_key", keep="first", maintain_order=True)
     )
     reference_df = medoid_df.join(ref_lookup, on="medoid_key", how="left").drop("medoid_key")
 
@@ -581,7 +581,7 @@ if sequence_cols:
 # Select sequence columns and 'clonotypeKey' from cloneTable for centroids
 centroid_sequences_for_cts = cloneTable.select(
     [pl.col('clonotypeKey').alias("centroid_key_cts")] + sequence_cols
-).unique("centroid_key_cts", keep="first")
+).unique("centroid_key_cts", keep="first", maintain_order=True)
 
 
 required_cols_cts = ['clusterId', 'clusterLabel', 'size'] + sequence_cols
@@ -597,7 +597,7 @@ required_cols_cts = ['clusterId', 'clusterLabel', 'size'] + sequence_cols
 # then join to get the centroid's sequences from 'cloneTable'.
 # Create a base for cluster_to_seq from unique clusterIds and their already determined labels/sizes.
 # Note: 'clusters' contains member clonotypeKeys. We need unique clusterIds.
-unique_clusters_info = clusters.select(["clusterId", "clusterLabel", "size"]).unique(subset=["clusterId"], keep="first")
+unique_clusters_info = clusters.select(["clusterId", "clusterLabel", "size"]).unique(subset=["clusterId"], keep="first", maintain_order=True)
 
 cluster_to_seq_df = unique_clusters_info.join(
     centroid_sequences_for_cts, # Contains centroid_key_cts and its sequence_cols
@@ -633,13 +633,13 @@ clone_to_cluster.write_csv(cloneToClusterTsv, separator="\t")
 # Merge cloneTable and clusters to link abundances to clusters
 # We need 'clusterId' from the 'clusters' table.
 merged_abundances = cloneTable.select(['sampleId', 'clonotypeKey', 'abundance']).join(
-    clusters.select(['clusterId', 'clonotypeKey']).unique(subset=["clonotypeKey"], keep="first"), # Ensure one cluster per clonotypeKey
+    clusters.select(['clusterId', 'clonotypeKey']).unique(subset=["clonotypeKey"], keep="first", maintain_order=True), # Ensure one cluster per clonotypeKey
     left_on='clonotypeKey', 
     right_on='clonotypeKey', 
     how='inner'
 )
 
-cluster_abundances = merged_abundances.group_by(['sampleId', 'clusterId']).agg(
+cluster_abundances = merged_abundances.group_by(['sampleId', 'clusterId'], maintain_order=True).agg(
     pl.sum('abundance').alias('abundance')
 )
 
@@ -660,7 +660,7 @@ cluster_abundances.write_csv(abundancesTsv, separator="\t")
 
 # --- Generate abundances-per-cluster.tsv ---
 abundances_per_cluster = cluster_abundances.group_by(
-    'clusterId').agg(pl.sum('abundance').alias('abundance_per_cluster'))
+    'clusterId', maintain_order=True).agg(pl.sum('abundance').alias('abundance_per_cluster'))
 
 # Calculate abundance fraction per cluster (fraction of total abundance across all clusters)
 total_abundance = abundances_per_cluster.select(pl.sum('abundance_per_cluster')).item()
@@ -674,8 +674,12 @@ abundances_per_cluster = abundances_per_cluster.with_columns(
 abundances_per_cluster.write_csv(abundancesPerClusterTsv, separator="\t")
 
 # --- Get top clusters for bubble plot ---
+# clusterId is the tie-break, not decoration: abundance ties are common (every cluster of the same
+# total abundance competes for the same slot), and without a second key `head(100)` picks among them
+# by whatever row order the upstream happened to produce. Sorting on clusterId as well makes the
+# top-100 a property of the data rather than of the pipeline's ordering.
 top_cluster_ids_df = abundances_per_cluster.sort(
-    'abundance_per_cluster', descending=True
+    ['abundance_per_cluster', 'clusterId'], descending=[True, False]
 ).head(100).select('clusterId')
 
 # --- Export per-clonotype sequences (MSA viewer input) ---
@@ -690,7 +694,7 @@ if sequence_cols:
     (
         cloneTable
         .select(select_exprs)
-        .unique(subset=["clonotypeKey"], keep="first")
+        .unique(subset=["clonotypeKey"], keep="first", maintain_order=True)
     ).write_csv(sequencesTsv, separator="\t")
 else:
     # No sequences — write empty file with headers
@@ -719,7 +723,7 @@ distance_df_base = clusters.select([
 member_original_labels = cloneTable.select([
     pl.col("clonotypeKey").alias("member_key_for_label_join"),
     pl.col("clonotypeKeyLabel")        # Member's original "C-" label
-]).unique("member_key_for_label_join", keep="first")
+]).unique("member_key_for_label_join", keep="first", maintain_order=True)
 
 distance_df = distance_df_base.join(
     member_original_labels,
@@ -766,7 +770,7 @@ distance_df_to_write = distance_df.select(output_columns)
 
 # Drop duplicate rows based on clonotypeKey (member's key), keeping the first occurrence.
 # This ensures one distance entry per member clonotype.
-distance_df_to_write = distance_df_to_write.unique(subset=["clonotypeKey"], keep="first")
+distance_df_to_write = distance_df_to_write.unique(subset=["clonotypeKey"], keep="first", maintain_order=True)
 
 # Output to TSV
 output_distance_tsv = "distance_to_centroid.tsv"
@@ -781,7 +785,7 @@ else:
 
 # --- Generate cluster-radius.tsv ---
 # Calculate max normalized distance per cluster
-cluster_radius_df = distance_df_to_write.group_by("clusterId").agg(
+cluster_radius_df = distance_df_to_write.group_by("clusterId", maintain_order=True).agg(
     pl.max("distanceToCentroid").alias("clusterRadius")
 )
 

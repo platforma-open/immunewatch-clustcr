@@ -189,8 +189,7 @@ const clusterAxis = computed<AxisId>(() => ({
         <template #tooltip>
           What to cluster on.<br />
           <b>CDR3</b> clusters on the CDR3 amino-acid sequence.<br />
-          <b>+ V gene</b> additionally ensures clusters within the same V family.<br />
-          <b>Paired (α + β)</b> clusters on both chains together (single-cell only).
+          <b>+ V gene</b> additionally ensures clusters within the same V family.
         </template>
       </PlDropdown>
 
@@ -280,9 +279,9 @@ const clusterAxis = computed<AxisId>(() => ({
     />
   </PlSlideModal>
 
-  <!-- clusTCR log -->
+  <!-- ClusTCR log -->
   <PlSlideModal v-model="clustcrLogOpen" width="80%">
-    <template #title>clusTCR Log</template>
+    <template #title>ClusTCR Log</template>
     <PlLogView :log-handle="app.model.outputs.clustcrOutput" />
   </PlSlideModal>
 </template>

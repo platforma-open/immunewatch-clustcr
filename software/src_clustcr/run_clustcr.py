@@ -1,14 +1,14 @@
 #!/usr/bin/env python
-"""Dedup + cluster TCR clonotypes with clusTCR, inside the clustcr-runner docker image.
+"""Dedup + cluster TCR clonotypes with clusTCR.
 
 Reads the raw per-clonotype table, dedups the clustering columns to unique sequences, runs clusTCR
 on the unique set, and emits the cluster assignment plus the representative->clonotype dedup mapping
 (process_results.py expands clusters back to all clonotypes with it). This folds in what used to be
 a separate base-Python prepare step.
 
-Runs in the docker image (/env: clustcr + faiss-cpu + polars; this script baked at /app). The
-workflow runs:
-  micromamba run -p /env python /app/run_clustcr.py input.tsv output.csv dedup_mapping.tsv <n_cpus> --inflation <v>
+Runs on the `runenv-python-3:3.10.21-clustcr` environment, which carries clusTCR
+(`immunewatch-clustcr`, module `imw_clustcr`) + faiss-cpu + polars. The workflow runs:
+  python run_clustcr.py input.tsv output.csv dedup_mapping.tsv <n_cpus> --inflation <v>
 
 Input  TSV (`input.tsv`, built by the workflow): `clonotypeKey`, `sequence_0` (primary CDR3, β or α),
   and EITHER `sequence_1` (paired α+β mode) OR `v_gene` (single + V-family mode) — mutually exclusive
@@ -25,9 +25,26 @@ based, so only the small unique-sequence set is converted.
 """
 import argparse
 import polars as pl
+import pandas as pd
+from imw_clustcr import Clustering
 
 # clusTCR's own recommendation: mcl below this many unique sequences, two-step at/above.
 MCL_TWO_STEP_THRESHOLD = 50_000
+
+
+def _col(cdf, *candidates):
+    """Resolve a clusters_df column by trying known aliases.
+
+    clusTCR's output schema is not stable across builds: this release returns `CDR3` for the
+    single-chain and paired paths, but echoes the CALLER's column names (`cdr3`, `v_gene`) for the
+    +V-gene path, while upstream's own code standardises on the AIRR names `junction_aa` / `v_call`.
+    Resolving instead of hardcoding keeps the runner working across all of them, and fails loudly
+    rather than silently dropping every assignment if the schema changes again.
+    """
+    for c in candidates:
+        if c in cdf.columns:
+            return c
+    raise SystemExit(f"[clustcr] unexpected clusters_df schema: {list(cdf.columns)}")
 
 
 def main():
@@ -49,12 +66,13 @@ def main():
 
     # --- Dedup identical clustering-key tuples; the first clonotypeKey per tuple is the
     # representative. clusTCR clusters the unique sequences; the mapping restores all clonotypes.
-    reps = df.unique(subset=key_cols, keep="first")
+    reps = df.unique(subset=key_cols, keep="first", maintain_order=True)
     (
         df.join(
             reps.select(["clonotypeKey", *key_cols]).rename({"clonotypeKey": "representativeKey"}),
             on=key_cols,
             how="inner",
+            maintain_order="left",  # a string, not a bool: keeps df's row order in the result
         )
         .select(["representativeKey", "clonotypeKey"])
         .write_csv(args.mapping, separator="\t")
@@ -77,9 +95,6 @@ def main():
     )
 
     # clusTCR's fit() is pandas-based; feed it the (small) unique-sequence columns as python lists.
-    import pandas as pd
-    from clustcr import Clustering
-
     seq_ids = src["seq_id"].to_list()
     cdr3_list = src["cdr3"].to_list()
 
@@ -94,17 +109,20 @@ def main():
         data = pd.DataFrame({"cdr3": cdr3_list, "v_gene": vgene_list})
         cdf = clustering.fit(data, include_vgene=True, cdr3_col="cdr3", v_gene_col="v_gene").clusters_df
         key2id = {(str(c), str(v)): i for i, c, v in zip(seq_ids, cdr3_list, vgene_list)}
-        row_key = lambda r: (str(r["junction_aa"]), str(r["v_call"]))
+        seq_c, v_c = _col(cdf, "cdr3", "junction_aa", "CDR3"), _col(cdf, "v_gene", "v_call")
+        row_key = lambda r: (str(r[seq_c]), str(r[v_c]))
     elif paired:
-        # clusTCR's `data.add(alpha)` concatenates beta+alpha; clusters_df.junction_aa is the join.
+        # clusTCR's `data.add(alpha)` concatenates beta+alpha; the sequence column holds the join.
         alpha_list = src["cdr3_alpha"].to_list()
         cdf = clustering.fit(pd.Series(cdr3_list), alpha=pd.Series(alpha_list)).clusters_df
         key2id = {b + a: i for i, b, a in zip(seq_ids, cdr3_list, alpha_list)}
-        row_key = lambda r: str(r["junction_aa"])
+        seq_c = _col(cdf, "CDR3", "junction_aa", "cdr3")
+        row_key = lambda r: str(r[seq_c])
     else:
         cdf = clustering.fit(pd.Series(cdr3_list)).clusters_df
         key2id = {str(c): i for i, c in zip(seq_ids, cdr3_list)}
-        row_key = lambda r: str(r["junction_aa"])
+        seq_c = _col(cdf, "CDR3", "junction_aa", "cdr3")
+        row_key = lambda r: str(r[seq_c])
 
     assigned = {}
     for _, r in cdf.iterrows():
@@ -122,6 +140,11 @@ def main():
             cl = next_id
             next_id += 1
         clusters.append(cl)
+
+    # Canonicalise the labels. clusTCR's integer cluster ids are arbitrary and permute between runs on
+    # identical input. Renumber by first appearance in seq_ids order, which is now deterministic. 
+    remap: dict[int, int] = {}
+    clusters = [remap.setdefault(c, len(remap)) for c in clusters]
 
     out = pl.DataFrame({"seq_id": seq_ids, "cluster": clusters})
     out.write_csv(args.output)

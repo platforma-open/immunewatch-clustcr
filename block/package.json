@@ -42,12 +42,12 @@
       "ui": "@platforma-open/milaboratories.tcr-clustering-clusttcr.ui/dist"
     },
     "meta": {
-      "title": "clusTCR",
+      "title": "ClusTCR",
       "logo": "file:../logos/block-logo.png",
       "url": "https://github.com/platforma-open/tcr-clustering-clusttcr",
       "docs": "https://docs.platforma.bio/",
       "support": "mailto:support@milaboratories.com",
-      "description": "TCR clustering by shared antigen specificity: groups clonotypes that likely recognize the same antigen using clusTCR.",
+      "description": "TCR clustering by shared antigen specificity: groups clonotypes that likely recognize the same antigen using ClusTCR.",
       "longDescription": "file:../docs/description.md",
       "changelog": "file:../CHANGELOG.md",
       "tags": [
