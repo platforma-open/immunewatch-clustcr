@@ -26,6 +26,7 @@
   "devDependencies": {
     "@milaboratories/ts-builder": "catalog:",
     "@milaboratories/ts-configs": "catalog:",
+    "@platforma-open/milaboratories.tcr-clustering-clusttcr.kind": "workspace:*",
     "@platforma-open/milaboratories.tcr-clustering-clusttcr.model": "workspace:*",
     "@platforma-open/milaboratories.tcr-clustering-clusttcr.ui": "workspace:*",
     "@platforma-open/milaboratories.tcr-clustering-clusttcr.workflow": "workspace:*",

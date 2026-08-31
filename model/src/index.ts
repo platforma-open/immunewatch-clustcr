@@ -1,5 +1,7 @@
 import type { GraphMakerState } from "@milaboratories/graph-maker";
 import strings from "@milaboratories/strings";
+import type { InputSelection } from "@platforma-open/milaboratories.tcr-clustering-clusttcr.kind";
+import { kind } from "@platforma-open/milaboratories.tcr-clustering-clusttcr.kind";
 import type {
   PColumnIdAndSpec,
   PColumnSpec,
@@ -18,21 +20,8 @@ import {
 } from "@platforma-sdk/model";
 export type * from "@milaboratories/helpers";
 
-/**
- * The "Cluster by" selection, snapshotted from the chosen dropdown option (the
- * model.md snapshot pattern: `.args` is data-only, but the option refs come from
- * the result pool, so the UI writes the resolved selection into `data` on the
- * user's dropdown gesture). `single` clusters one CDR3 chain (β or α — the chain
- * is whichever column `sequenceRef` points at); `paired` concatenates β+α.
- */
-export type InputSelection =
-  | {
-      mode: "single";
-      sequenceRef: SUniversalPColumnId;
-      useVGene: boolean;
-      vGeneRef?: SUniversalPColumnId; // resolved V-gene column for the chosen chain (only when useVGene)
-    }
-  | { mode: "paired"; betaRef: SUniversalPColumnId; alphaRef: SUniversalPColumnId };
+/** Re-exported from the kind, which owns it: the init-params contract carries it. */
+export type { InputSelection } from "@platforma-open/milaboratories.tcr-clustering-clusttcr.kind";
 
 export type BlockData = {
   // Block label (custom overrides default).
@@ -101,40 +90,48 @@ export function getDefaultBlockLabel(data: { inputLabel: string; inflation: numb
   return parts.filter(Boolean).join(", ");
 }
 
-const dataModel = new DataModelBuilder().from<BlockData>("v1").init(() => ({
-  defaultBlockLabel: getDefaultBlockLabel({ inputLabel: "", inflation: 1.2 }),
-  customBlockLabel: "",
-  inflation: 1.2,
-  consensusThreshold: 0.6,
-  weightByAbundance: false,
-  tableState: createPlDataTableStateV2(),
-  alignmentModel: {},
-  graphStateBubble: {
-    title: "Most abundant clusters",
-    template: "bubble",
-    currentTab: null,
-    layersSettings: {
-      bubble: {
-        normalizationDirection: null,
+const dataModel = new DataModelBuilder({ kind })
+  .from<BlockData>("v1")
+  // `params` is absent when a block is created by hand rather than from a template, so every
+  // field the contract carries keeps its own default.
+  .init(({ params }) => ({
+    defaultBlockLabel:
+      params?.defaultBlockLabel ??
+      getDefaultBlockLabel({ inputLabel: "", inflation: params?.inflation ?? 1.2 }),
+    customBlockLabel: params?.customBlockLabel ?? "",
+    datasetRef: params?.datasetRef,
+    inputSelection: params?.inputSelection,
+    inflation: params?.inflation ?? 1.2,
+    consensusThreshold: params?.consensusThreshold ?? 0.6,
+    weightByAbundance: params?.weightByAbundance ?? false,
+    tableState: createPlDataTableStateV2(),
+    alignmentModel: {},
+    graphStateBubble: {
+      title: "Most abundant clusters",
+      template: "bubble",
+      currentTab: null,
+      layersSettings: {
+        bubble: {
+          normalizationDirection: null,
+        },
       },
     },
-  },
-  graphStateHistogram: {
-    title: strings.titles.histogram,
-    template: "bins",
-    currentTab: null,
-    layersSettings: {
-      bins: { fillColor: "#99e099" },
-    },
-    axesSettings: {
-      axisY: {
-        axisLabelsAngle: 90,
-        scale: "log",
+    graphStateHistogram: {
+      title: strings.titles.histogram,
+      template: "bins",
+      currentTab: null,
+      layersSettings: {
+        bins: { fillColor: "#99e099" },
       },
-      other: { binsCount: 30 },
+      axesSettings: {
+        axisY: {
+          axisLabelsAngle: 90,
+          scale: "log",
+        },
+        other: { binsCount: 30 },
+      },
     },
-  },
-}));
+  }));
 
 /**
  * Whether the "Paired (α + β)" entry appears in the "Cluster by" dropdown. NOT OFFERED for now.
@@ -146,7 +143,7 @@ function trimPrimary(label: string): string {
   return label.replace(/\s+Primary$/i, "");
 }
 
-export const platforma = BlockModelV3.create(dataModel)
+export const platforma = BlockModelV3.create({ dataModel, kind })
 
   .args((data) => {
     if (!data.datasetRef) throw new Error("Dataset is required");
@@ -177,6 +174,18 @@ export const platforma = BlockModelV3.create(dataModel)
       cpu: data.cpu,
     };
   })
+
+  // The inverse of `init`: the same six fields, so a block exports what it can be seeded with.
+  // `inputSelection` holds ids anchored to `datasetRef`, so it travels only alongside it
+  .templateParams((data) => ({
+    defaultBlockLabel: data.defaultBlockLabel,
+    customBlockLabel: data.customBlockLabel,
+    datasetRef: data.datasetRef,
+    inputSelection: data.datasetRef === undefined ? undefined : data.inputSelection,
+    inflation: data.inflation,
+    consensusThreshold: data.consensusThreshold,
+    weightByAbundance: data.weightByAbundance,
+  }))
 
   // Dataset picker: TCR α/β clonotype datasets (bulk + single-cell). No peptide (variantKey).
   // Only TCR α/β is offered — IG (BCR) and TCR γ/δ are dropped. Bulk anchors are per-chain
