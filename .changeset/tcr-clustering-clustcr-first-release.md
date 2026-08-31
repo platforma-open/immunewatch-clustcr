@@ -1,10 +1,10 @@
 ---
-'@platforma-open/milaboratories.tcr-clustering-clusttcr.kind': major
-'@platforma-open/milaboratories.tcr-clustering-clusttcr.model': major
-'@platforma-open/milaboratories.tcr-clustering-clusttcr.ui': major
-'@platforma-open/milaboratories.tcr-clustering-clusttcr.workflow': major
-'@platforma-open/milaboratories.tcr-clustering-clusttcr.software': major
-'@platforma-open/milaboratories.tcr-clustering-clusttcr': major
+'@platforma-open/milaboratories.tcr-clustering-clustcr.kind': major
+'@platforma-open/milaboratories.tcr-clustering-clustcr.model': major
+'@platforma-open/milaboratories.tcr-clustering-clustcr.ui': major
+'@platforma-open/milaboratories.tcr-clustering-clustcr.workflow': major
+'@platforma-open/milaboratories.tcr-clustering-clustcr.software': major
+'@platforma-open/milaboratories.tcr-clustering-clustcr': major
 ---
 
 First release of the ImmuneWatch ClusTCR block.

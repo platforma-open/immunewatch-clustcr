@@ -1,5 +1,5 @@
 {
-  "name": "@platforma-open/milaboratories.tcr-clustering-clusttcr.workflow",
+  "name": "@platforma-open/milaboratories.tcr-clustering-clustcr.workflow",
   "version": "0.0.0",
   "private": true,
   "description": "Tengo-based template",
@@ -11,7 +11,7 @@
     "check": "pl-tengo check"
   },
   "dependencies": {
-    "@platforma-open/milaboratories.tcr-clustering-clusttcr.software": "workspace:*",
+    "@platforma-open/milaboratories.tcr-clustering-clustcr.software": "workspace:*",
     "@platforma-sdk/workflow-tengo": "catalog:"
   },
   "devDependencies": {

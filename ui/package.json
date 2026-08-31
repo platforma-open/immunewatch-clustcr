@@ -1,5 +1,5 @@
 {
-  "name": "@platforma-open/milaboratories.tcr-clustering-clusttcr.ui",
+  "name": "@platforma-open/milaboratories.tcr-clustering-clustcr.ui",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -16,7 +16,7 @@
     "@milaboratories/graph-maker": "catalog:",
     "@milaboratories/multi-sequence-alignment": "catalog:",
     "@milaboratories/strings": "catalog:",
-    "@platforma-open/milaboratories.tcr-clustering-clusttcr.model": "workspace:*",
+    "@platforma-open/milaboratories.tcr-clustering-clustcr.model": "workspace:*",
     "@platforma-sdk/model": "catalog:",
     "@platforma-sdk/ui-vue": "catalog:",
     "vue": "catalog:"

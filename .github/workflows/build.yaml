@@ -22,8 +22,8 @@ jobs:
       - init
     uses: milaboratory/github-ci/.github/workflows/node-simple-pnpm.yaml@v4
     with:
-      app-name: 'Block: Tcr Clustering Clusttcr'
-      app-name-slug: 'block-tcr-clustering-clusttcr'
+      app-name: 'Block: Tcr Clustering Clustcr'
+      app-name-slug: 'block-tcr-clustering-clustcr'
       node-version: '22.x'
       gha-runner-label: hz-ubuntu-dind
       build-script-name: 'build:dev-local'

@@ -3,9 +3,9 @@ exec := import("@platforma-sdk/workflow-tengo:exec")
 assets := import("@platforma-sdk/workflow-tengo:assets")
 
 math := import("math")
-clustcrRunnerSw := assets.importSoftware("@platforma-open/milaboratories.tcr-clustering-clusttcr.software:cluster")
-processResultsSw := assets.importSoftware("@platforma-open/milaboratories.tcr-clustering-clusttcr.software:process-results")
-createEmptyFilesSw := assets.importSoftware("@platforma-open/milaboratories.tcr-clustering-clusttcr.software:create-empty-files")
+clustcrRunnerSw := assets.importSoftware("@platforma-open/milaboratories.tcr-clustering-clustcr.software:cluster")
+processResultsSw := assets.importSoftware("@platforma-open/milaboratories.tcr-clustering-clustcr.software:process-results")
+createEmptyFilesSw := assets.importSoftware("@platforma-open/milaboratories.tcr-clustering-clustcr.software:create-empty-files")
 
 self.validateInputs({
 	"__options__,closed": "",

@@ -111,16 +111,16 @@ importers:
       '@milaboratories/ts-configs':
         specifier: 'catalog:'
         version: 1.4.0
-      '@platforma-open/milaboratories.tcr-clustering-clusttcr.kind':
+      '@platforma-open/milaboratories.tcr-clustering-clustcr.kind':
         specifier: workspace:*
         version: link:../kind
-      '@platforma-open/milaboratories.tcr-clustering-clusttcr.model':
+      '@platforma-open/milaboratories.tcr-clustering-clustcr.model':
         specifier: workspace:*
         version: link:../model
-      '@platforma-open/milaboratories.tcr-clustering-clusttcr.ui':
+      '@platforma-open/milaboratories.tcr-clustering-clustcr.ui':
         specifier: workspace:*
         version: link:../ui
-      '@platforma-open/milaboratories.tcr-clustering-clusttcr.workflow':
+      '@platforma-open/milaboratories.tcr-clustering-clustcr.workflow':
         specifier: workspace:*
         version: link:../workflow
       '@platforma-sdk/block-tools':
@@ -175,7 +175,7 @@ importers:
       '@milaboratories/strings':
         specifier: 'catalog:'
         version: 0.1.2
-      '@platforma-open/milaboratories.tcr-clustering-clusttcr.kind':
+      '@platforma-open/milaboratories.tcr-clustering-clustcr.kind':
         specifier: workspace:*
         version: link:../kind
       '@platforma-sdk/model':
@@ -213,7 +213,7 @@ importers:
   test:
     dependencies:
       this-block:
-        specifier: workspace:@platforma-open/milaboratories.tcr-clustering-clusttcr@*
+        specifier: workspace:@platforma-open/milaboratories.tcr-clustering-clustcr@*
         version: link:../block
       typescript:
         specifier: '*'
@@ -246,7 +246,7 @@ importers:
       '@milaboratories/strings':
         specifier: 'catalog:'
         version: 0.1.2
-      '@platforma-open/milaboratories.tcr-clustering-clusttcr.model':
+      '@platforma-open/milaboratories.tcr-clustering-clustcr.model':
         specifier: workspace:*
         version: link:../model
       '@platforma-sdk/model':
@@ -277,7 +277,7 @@ importers:
 
   workflow:
     dependencies:
-      '@platforma-open/milaboratories.tcr-clustering-clusttcr.software':
+      '@platforma-open/milaboratories.tcr-clustering-clustcr.software':
         specifier: workspace:*
         version: link:../software
       '@platforma-sdk/workflow-tengo':
@@ -8264,7 +8264,7 @@ snapshots:
       oxlint: 1.63.0
       oxlint-plugin-eslint: 1.63.0
       rolldown: 1.2.6
-      rolldown-plugin-dts: 0.28.4(@volar/typescript@2.4.28)(rolldown@1.2.6)(typescript@7.0.2)(vue-tsc@3.3.10(typescript@5.6.3))
+      rolldown-plugin-dts: 0.28.4(@volar/typescript@2.4.28)(rolldown@1.2.6)(typescript@7.0.2)(vue-tsc@3.3.10(typescript@7.0.2))
       rollup-plugin-copy: 3.5.0
       rollup-plugin-sourcemaps2: 0.5.8(@types/node@26.4.0)(rollup@4.63.1)
       typescript: 7.0.2
@@ -8310,7 +8310,7 @@ snapshots:
       oxlint: 1.63.0
       oxlint-plugin-eslint: 1.63.0
       rolldown: 1.2.6
-      rolldown-plugin-dts: 0.28.4(@volar/typescript@2.4.28)(rolldown@1.2.6)(typescript@7.0.2)(vue-tsc@3.3.10(typescript@5.6.3))
+      rolldown-plugin-dts: 0.28.4(@volar/typescript@2.4.28)(rolldown@1.2.6)(typescript@7.0.2)(vue-tsc@3.3.10(typescript@7.0.2))
       rollup-plugin-copy: 3.5.0
       rollup-plugin-sourcemaps2: 0.5.8(@types/node@26.4.0)(rollup@4.63.1)
       typescript: 7.0.2
@@ -8356,7 +8356,7 @@ snapshots:
       oxlint: 1.63.0
       oxlint-plugin-eslint: 1.63.0
       rolldown: 1.2.6
-      rolldown-plugin-dts: 0.28.4(@volar/typescript@2.4.28)(rolldown@1.2.6)(typescript@7.0.2)(vue-tsc@3.3.10(typescript@5.6.3))
+      rolldown-plugin-dts: 0.28.4(@volar/typescript@2.4.28)(rolldown@1.2.6)(typescript@7.0.2)(vue-tsc@3.3.10(typescript@7.0.2))
       rollup-plugin-copy: 3.5.0
       rollup-plugin-sourcemaps2: 0.5.8(@types/node@26.4.0)(rollup@4.63.1)
       typescript: 7.0.2
@@ -13934,7 +13934,7 @@ snapshots:
 
   reusify@1.1.0: {}
 
-  rolldown-plugin-dts@0.28.4(@volar/typescript@2.4.28)(rolldown@1.2.6)(typescript@7.0.2)(vue-tsc@3.3.10(typescript@5.6.3)):
+  rolldown-plugin-dts@0.28.4(@volar/typescript@2.4.28)(rolldown@1.2.6)(typescript@7.0.2)(vue-tsc@3.3.10(typescript@7.0.2)):
     dependencies:
       dts-resolver: 3.0.0
       get-tsconfig: 5.0.0-beta.6

@@ -4,6 +4,6 @@ Groups TCR clonotypes by likely shared antigen specificity, enabling researchers
 
 The clustered data can be used in downstream analysis blocks such as ImmuneWatch DETECT for annotation of the specificity of your TCRs, Sequence Enrichment to analyze enrichment patterns at the cluster level across selection rounds, or Lead Selection to identify top candidates based on cluster-level scoring metrics.
 
-ClusTCR is developed by the Meysman lab (ADReM Data Lab, University of Antwerp). For more information, please see: [https://github.com/svalkiers/clustcr](https://github.com/svalkiers/clustcr) and cite the following publication if used in your research:
+ClusTCR was developed by the Meysman lab (ADReM Data Lab, University of Antwerp) and is distributed by ImmuneWatch BV as the [`immunewatch-clustcr`](https://pypi.org/project/immunewatch-clustcr/) Python package, which is the implementation this block runs. Please cite the following publication if used in your research:
 
 > Sebastiaan Valkiers, Max Van Houcke, Kris Laukens, Pieter Meysman. ClusTCR: a Python interface for rapid clustering of large sets of CDR3 sequences with unknown antigen specificity. _Bioinformatics_ 2021; btab446. [https://doi.org/10.1093/bioinformatics/btab446](https://doi.org/10.1093/bioinformatics/btab446)

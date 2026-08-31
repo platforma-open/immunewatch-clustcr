@@ -1,7 +1,7 @@
 import type { GraphMakerState } from "@milaboratories/graph-maker";
 import strings from "@milaboratories/strings";
-import type { InputSelection } from "@platforma-open/milaboratories.tcr-clustering-clusttcr.kind";
-import { kind } from "@platforma-open/milaboratories.tcr-clustering-clusttcr.kind";
+import type { InputSelection } from "@platforma-open/milaboratories.tcr-clustering-clustcr.kind";
+import { kind } from "@platforma-open/milaboratories.tcr-clustering-clustcr.kind";
 import type {
   PColumnIdAndSpec,
   PColumnSpec,
@@ -21,7 +21,7 @@ import {
 export type * from "@milaboratories/helpers";
 
 /** Re-exported from the kind, which owns it: the init-params contract carries it. */
-export type { InputSelection } from "@platforma-open/milaboratories.tcr-clustering-clusttcr.kind";
+export type { InputSelection } from "@platforma-open/milaboratories.tcr-clustering-clustcr.kind";
 
 export type BlockData = {
   // Block label (custom overrides default).

@@ -1,5 +1,5 @@
 {
-  "name": "@platforma-open/milaboratories.tcr-clustering-clusttcr.model",
+  "name": "@platforma-open/milaboratories.tcr-clustering-clustcr.model",
   "version": "0.0.0",
   "private": true,
   "description": "Block model",
@@ -27,7 +27,7 @@
     "@milaboratories/graph-maker": "catalog:",
     "@milaboratories/helpers": "catalog:",
     "@milaboratories/strings": "catalog:",
-    "@platforma-open/milaboratories.tcr-clustering-clusttcr.kind": "workspace:*",
+    "@platforma-open/milaboratories.tcr-clustering-clustcr.kind": "workspace:*",
     "@platforma-sdk/model": "catalog:"
   },
   "devDependencies": {

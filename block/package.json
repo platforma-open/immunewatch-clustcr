@@ -1,5 +1,5 @@
 {
-  "name": "@platforma-open/milaboratories.tcr-clustering-clusttcr",
+  "name": "@platforma-open/milaboratories.tcr-clustering-clustcr",
   "version": "0.0.0",
   "files": [
     "dist",
@@ -27,10 +27,10 @@
   "devDependencies": {
     "@milaboratories/ts-builder": "catalog:",
     "@milaboratories/ts-configs": "catalog:",
-    "@platforma-open/milaboratories.tcr-clustering-clusttcr.kind": "workspace:*",
-    "@platforma-open/milaboratories.tcr-clustering-clusttcr.model": "workspace:*",
-    "@platforma-open/milaboratories.tcr-clustering-clusttcr.ui": "workspace:*",
-    "@platforma-open/milaboratories.tcr-clustering-clusttcr.workflow": "workspace:*",
+    "@platforma-open/milaboratories.tcr-clustering-clustcr.kind": "workspace:*",
+    "@platforma-open/milaboratories.tcr-clustering-clustcr.model": "workspace:*",
+    "@platforma-open/milaboratories.tcr-clustering-clustcr.ui": "workspace:*",
+    "@platforma-open/milaboratories.tcr-clustering-clustcr.workflow": "workspace:*",
     "@platforma-sdk/block-tools": "catalog:",
     "@platforma-sdk/model": "catalog:",
     "shx": "catalog:",
@@ -39,14 +39,14 @@
   "packageManager": "pnpm@9.14.4",
   "block": {
     "components": {
-      "workflow": "@platforma-open/milaboratories.tcr-clustering-clusttcr.workflow/dist/tengo/tpl/main.plj.gz",
-      "model": "@platforma-open/milaboratories.tcr-clustering-clusttcr.model/dist/model.json",
-      "ui": "@platforma-open/milaboratories.tcr-clustering-clusttcr.ui/dist"
+      "workflow": "@platforma-open/milaboratories.tcr-clustering-clustcr.workflow/dist/tengo/tpl/main.plj.gz",
+      "model": "@platforma-open/milaboratories.tcr-clustering-clustcr.model/dist/model.json",
+      "ui": "@platforma-open/milaboratories.tcr-clustering-clustcr.ui/dist"
     },
     "meta": {
       "title": "ImmuneWatch ClusTCR",
       "logo": "file:../logos/block-logo.png",
-      "url": "https://github.com/platforma-open/tcr-clustering-clusttcr",
+      "url": "https://github.com/platforma-open/tcr-clustering-clustcr",
       "docs": "https://docs.platforma.bio/",
       "support": "mailto:support@milaboratories.com",
       "description": "TCR clustering by shared antigen specificity: groups clonotypes that likely recognize the same antigen using ClusTCR.",

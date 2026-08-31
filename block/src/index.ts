@@ -1,7 +1,7 @@
 // This file is managed by `block-tools structure`. Do not edit by hand.
 // Author content lives in ./block-extra.ts.
 
-import { platforma } from "@platforma-open/milaboratories.tcr-clustering-clusttcr.model";
+import { platforma } from "@platforma-open/milaboratories.tcr-clustering-clustcr.model";
 import {
   InferOutputsType,
   InferDataType,
@@ -47,9 +47,9 @@ export const BlockPointer = {
 // Block-named aliases for readable cross-block imports in tests and
 // consumer code. Same types / same runtime value as the universal
 // names above; the aliases avoid `as`-renames at the import site.
-export type TcrClusteringClusttcrBlockContract = BlockContract;
-export type TcrClusteringClusttcrBlockOutputs  = BlockOutputs;
-export type TcrClusteringClusttcrBlockData     = BlockData;
-export const TcrClusteringClusttcrBlockPointer = BlockPointer;
+export type TcrClusteringClustcrBlockContract = BlockContract;
+export type TcrClusteringClustcrBlockOutputs  = BlockOutputs;
+export type TcrClusteringClustcrBlockData     = BlockData;
+export const TcrClusteringClustcrBlockPointer = BlockPointer;
 
 export * from "./block-extra";

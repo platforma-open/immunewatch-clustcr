@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { PlMultiSequenceAlignment } from "@milaboratories/multi-sequence-alignment";
 import strings from "@milaboratories/strings";
-import { findClusterByOption } from "@platforma-open/milaboratories.tcr-clustering-clusttcr.model";
+import { findClusterByOption } from "@platforma-open/milaboratories.tcr-clustering-clustcr.model";
 import type {
   AxisId,
   PColumnPredicate,
@@ -144,7 +144,7 @@ const clusterAxis = computed<AxisId>(() => ({
   <PlBlockPage
     v-model:subtitle="app.model.data.customBlockLabel"
     :subtitle-placeholder="app.model.data.defaultBlockLabel"
-    title="TCR Clustering"
+    title="ImmuneWatch ClusTCR"
   >
     <template #append>
       <PlBtnGhost @click.stop="() => (clustcrLogOpen = true)">
