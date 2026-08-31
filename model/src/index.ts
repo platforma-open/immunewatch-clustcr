@@ -402,7 +402,7 @@ export const platforma = BlockModelV3.create({ dataModel, kind })
 
   .output("isRunning", (ctx) => ctx.outputs?.getIsReadyOrError() === false)
 
-  .title(() => "ClusTCR")
+  .title(() => "ImmuneWatch ClusTCR")
 
   .subtitle((ctx) => ctx.data.customBlockLabel || ctx.data.defaultBlockLabel)
 

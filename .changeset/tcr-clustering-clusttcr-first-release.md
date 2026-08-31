@@ -7,7 +7,7 @@
 '@platforma-open/milaboratories.tcr-clustering-clusttcr': major
 ---
 
-First release of the ClusTCR Clustering block.
+First release of the ImmuneWatch ClusTCR block.
 
 Clusters TCR CDR3 sequences with ClusTCR (CDR3 Hamming network + MCL, optionally restricted to
 the same V gene family), then computes per-cluster statistics: representative sequence, consensus
