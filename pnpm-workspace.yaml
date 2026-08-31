@@ -10,14 +10,11 @@ packages:
 catalog:
   "es-toolkit": 1.41.0
   # SDK packages - EXACT VERSIONS (no ^ or ~)
-  "@milaboratories/ts-builder": 1.7.1
+  "@milaboratories/ts-builder": 1.7.2
   "@milaboratories/ts-configs": 1.4.0
   "@platforma-sdk/workflow-tengo": 6.8.3
   "@platforma-sdk/model": 1.83.0
-  # Held one patch behind latest: 1.83.1 ships no `.vue.d.ts` sidecars, so the
-  # `export ... from "./components/X.vue"` lines in its lib.d.ts resolve to nothing.
-  # Bumping this to 1.83.1 breaks `block/` build with 4 UNRESOLVED_IMPORT errors.
-  "@platforma-sdk/ui-vue": 1.83.0
+  "@platforma-sdk/ui-vue": 1.83.3
   "@platforma-sdk/tengo-builder": 4.0.23
   "@platforma-sdk/package-builder": 3.15.0
   "@platforma-sdk/block-tools": 2.14.3
