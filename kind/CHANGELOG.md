@@ -1,4 +1,4 @@
-# Changelog
+# @platforma-open/milaboratories.tcr-clustering-clustcr.kind
 
 ## 1.0.0
 
@@ -12,10 +12,3 @@
 
   - Runs ClusTCR from the `immunewatch-clustcr` PyPI package on the `runenv-python-3:3.10.21-clustcr`
     variant.
-
-### Patch Changes
-
-- Updated dependencies [f4a6017]
-  - @platforma-open/milaboratories.tcr-clustering-clustcr.kind@1.0.0
-
-Initial version.
