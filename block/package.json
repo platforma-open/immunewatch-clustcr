@@ -1,0 +1,76 @@
+{
+  "name": "@platforma-open/milaboratories.tcr-clustering-clustcr",
+  "version": "0.0.0",
+  "files": [
+    "dist",
+    "block-pack"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "sources": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "ts-builder build --target block-facade && block-tools pack",
+    "do-pack": "shx rm -f package.tgz && pnpm pack && shx mv *.tgz package.tgz",
+    "prepublishOnly": "block-tools publish --unstable -r s3://milab-euce1-prod-pkgs-s3-block-registry/pub/releases/?region=eu-central-1 --registry-serve-url https://blocks.pl-open.science",
+    "check": "ts-builder type-check --target block-facade",
+    "mark-stable": "block-tools mark-stable -r 's3://milab-euce1-prod-pkgs-s3-block-registry/pub/releases/?region=eu-central-1'"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@milaboratories/ts-builder": "catalog:",
+    "@milaboratories/ts-configs": "catalog:",
+    "@platforma-open/milaboratories.tcr-clustering-clustcr.kind": "workspace:*",
+    "@platforma-open/milaboratories.tcr-clustering-clustcr.model": "workspace:*",
+    "@platforma-open/milaboratories.tcr-clustering-clustcr.ui": "workspace:*",
+    "@platforma-open/milaboratories.tcr-clustering-clustcr.workflow": "workspace:*",
+    "@platforma-sdk/block-tools": "catalog:",
+    "@platforma-sdk/model": "catalog:",
+    "shx": "catalog:",
+    "typescript": "catalog:"
+  },
+  "packageManager": "pnpm@9.14.4",
+  "block": {
+    "components": {
+      "workflow": "@platforma-open/milaboratories.tcr-clustering-clustcr.workflow/dist/tengo/tpl/main.plj.gz",
+      "model": "@platforma-open/milaboratories.tcr-clustering-clustcr.model/dist/model.json",
+      "ui": "@platforma-open/milaboratories.tcr-clustering-clustcr.ui/dist"
+    },
+    "meta": {
+      "title": "ImmuneWatch ClusTCR",
+      "logo": "file:../logos/block-logo.png",
+      "url": "https://github.com/platforma-open/tcr-clustering-clustcr",
+      "docs": "https://docs.platforma.bio/",
+      "support": "mailto:support@milaboratories.com",
+      "description": "TCR clustering by shared antigen specificity: groups clonotypes that likely recognize the same antigen using ClusTCR.",
+      "longDescription": "file:../docs/description.md",
+      "changelog": "file:../CHANGELOG.md",
+      "tags": [
+        "airr",
+        "downstream",
+        "clustering",
+        "tcr",
+        "tcr-clustering"
+      ],
+      "marketplaceRanking": 12330,
+      "organization": {
+        "name": "ImmuneWatch BV",
+        "url": "https://milaboratories.com/",
+        "logo": "file:../logos/immunewatch-logo.svg"
+      },
+      "supportedPlatforms": [
+        "linux-x64",
+        "linux-aarch64",
+        "macosx-x64",
+        "macosx-aarch64"
+      ]
+    }
+  }
+}

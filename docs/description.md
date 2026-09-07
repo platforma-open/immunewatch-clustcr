@@ -1,0 +1,9 @@
+# Overview
+
+Groups TCR clonotypes by likely shared antigen specificity, enabling researchers to identify T cells that may recognize the same antigen. Specificity is driven mostly by the central CDR3 loop, so the block uses **ClusTCR** to cluster on the **CDR3 amino-acid** sequence: it builds a similarity network of same-length sequences within one substitution (Hamming distance ≤ 1) and partitions it with Markov clustering (MCL); from 50,000 unique sequences upward it switches automatically to ClusTCR's two-step mode, which pre-groups sequences with FAISS before applying MCL within each group. Clustering runs on one chain at a time (β or α), optionally restricted to the same V gene family, and outputs a cluster assignment for each clonotype. The block then aligns each cluster's members to compute a representative sequence, consensus centroid, distance-to-centroid and cluster radius, plus bubble plots and histograms for exploring the results.
+
+The clustered data can be used in downstream analysis blocks such as ImmuneWatch DETECT for annotation of the specificity of your TCRs, Sequence Enrichment to analyze enrichment patterns at the cluster level across selection rounds, or Lead Selection to identify top candidates based on cluster-level scoring metrics.
+
+ClusTCR was developed by the Meysman lab (ADReM Data Lab, University of Antwerp) and is distributed by ImmuneWatch BV as the [`immunewatch-clustcr`](https://pypi.org/project/immunewatch-clustcr/) Python package, which is the implementation this block runs. Please cite the following publication if used in your research:
+
+> Sebastiaan Valkiers, Max Van Houcke, Kris Laukens, Pieter Meysman. ClusTCR: a Python interface for rapid clustering of large sets of CDR3 sequences with unknown antigen specificity. _Bioinformatics_ 2021; btab446. [https://doi.org/10.1093/bioinformatics/btab446](https://doi.org/10.1093/bioinformatics/btab446)
