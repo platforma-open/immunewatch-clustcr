@@ -1,8 +1,6 @@
 import polars as pl
 import argparse
 import re
-import base64
-import hashlib
 import kalign
 
 # --- Computed-centroid (kalign MSA consensus) constants ---
@@ -49,7 +47,6 @@ cloneToClusterTsv = "clone-to-cluster.tsv"
 abundancesTsv = "abundances.tsv"
 abundancesPerClusterTsv = "abundances-per-cluster.tsv"
 clusterRadiusTsv = "cluster-radius.tsv"
-sequencesTsv = "sequences.tsv"
 
 # sampleId, clonotypeKey, clonotypeKeyLabel,sequence_..., 
 # ...VGene, JGene
@@ -64,20 +61,11 @@ if "abundance" in cloneTable.columns:
 sequence_cols = [col for col in cloneTable.columns 
                  if col.startswith('sequence_')]
 
-# Create a 'fullSequence' column by concatenating sequence_cols if they exist
 if not sequence_cols:
     print("Warning: No sequence columns (e.g., 'sequence_0') found. Sequence-based distance calculation might fail or be incorrect.")
-else:
-    sorted_sequence_cols = sorted(sequence_cols)
-    cloneTable = cloneTable.with_columns(
-        pl.concat_str([pl.col(c).fill_null("") for c in sorted_sequence_cols], separator="====").alias('fullSequence')
-    )
 
 # Transform clonotypeKeyLabel from "C-XXXXXX" (clonotype, MiXCR-side) or "P-XXXXXX"
 # (peptide, peptide-extraction-side) into "CL-XXXXXX" (the cluster label).
-# The computed centroid's own "Peptide Id" is NOT derived here — it is a hash of the
-# consensus sequence itself, computed once the plurality centroid is known (see the
-# peptideLabel derivation on plurality_df below).
 cloneTable = cloneTable.with_columns(
     pl.col('clonotypeKeyLabel').str.replace(r'^[CP]-', 'CL-').alias('clusterLabel'),
 )
@@ -677,27 +665,6 @@ abundances_per_cluster.write_csv(abundancesPerClusterTsv, separator="\t")
 top_cluster_ids_df = abundances_per_cluster.sort(
     ['abundance_per_cluster', 'clusterId'], descending=[True, False]
 ).head(100).select('clusterId')
-
-# --- Export per-clonotype sequences (MSA viewer input) ---
-if sequence_cols:
-    select_exprs = [pl.col("clonotypeKey")]
-    if "fullSequence" in cloneTable.columns:
-        select_exprs.append(pl.col("fullSequence"))
-    for c in sorted(sequence_cols):
-        if c in cloneTable.columns:
-            select_exprs.append(pl.col(c))
-
-    (
-        cloneTable
-        .select(select_exprs)
-        .unique(subset=["clonotypeKey"], keep="first", maintain_order=True)
-    ).write_csv(sequencesTsv, separator="\t")
-else:
-    # No sequences — write empty file with headers
-    pl.DataFrame({
-        "clonotypeKey": [],
-        "fullSequence": []
-    }).write_csv(sequencesTsv, separator="\t")
 
 # --- Generate distance_to_centroid.tsv (New Segmented Approach) ---
 
