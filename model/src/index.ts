@@ -349,8 +349,8 @@ export const platforma = BlockModelV3.create({ dataModel, kind })
   .output("msaPf", (ctx): PFrameHandle | undefined => {
     const msaCols = ctx.outputs?.resolve("msaPf")?.getPColumns();
     if (!msaCols) return undefined;
-    const datasetRef = ctx.data.datasetRef;
-    const sel = ctx.data.inputSelection;
+    const datasetRef = ctx.activeArgs?.datasetRef;
+    const sel = ctx.activeArgs?.inputSelection;
     if (datasetRef === undefined || sel === undefined) return createPFrameForGraphs(ctx, msaCols);
     const refs = sel.mode === "paired" ? [sel.betaRef, sel.alphaRef] : [sel.sequenceRef];
     const seqCols = ctx.resultPool.getAnchoredPColumns(
