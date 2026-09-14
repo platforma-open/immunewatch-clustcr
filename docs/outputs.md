@@ -2,6 +2,14 @@
 
 The per-row input key is `clonotypeKey` (the TCR clonotype — bulk or single-cell).
 
+Clusters come from **ClusTCR**: equal-length CDR3 amino-acid sequences within one substitution
+(Hamming distance ≤ 1) form a similarity network, which is partitioned by Markov clustering (MCL).
+The **MCL inflation** setting (default `1.2`) controls granularity — higher values give smaller,
+tighter clusters. With **+ V gene**, two sequences are linked only when they share a V **family**
+(not the full V gene), so a cluster never mixes families. From 50,000 unique sequences upward
+ClusTCR switches to its `two-step` mode, pre-grouping with FAISS before running MCL inside each
+group.
+
 `clusterId` is the cluster's **medoid** — the real clonotype whose CDR3 is closest to the cluster's consensus centre (minimum profile distance). As in the other clustering blocks, the medoid *is* the cluster id, so the reference-centroid column below is the `clusterId` member's own sequence.
 
 Each cluster exposes, on the `clusterId` axis:

@@ -598,46 +598,10 @@ wf.body(func(args) {
 	}
 	bubblePlotPf := bubblePlotPfBuilder.build()
 
-	// Generate a pFrame with the per-clonotype sequences for the MSA viewer.
-	seqPf := xsv.importFile(clusteringAnalysis.output("sequences"), "tsv", {
-		axes: [{
-			column: "clonotypeKey",
-			spec: datasetSpec.axesSpec[1]
-		}],
-		columns: func() {
-			cols := []
-			// One alignable sequence column per selected chain (sequence_0, sequence_1, ...).
-			for nr, seq in sequencesRef {
-				cname := "sequence_" + string(nr)
-				baseSpecForSeq := maps.clone(columns.getSpec(seq))
-				chain := baseSpecForSeq.domain["pl7.app/vdj/scClonotypeChain"]
-				chainIndex := baseSpecForSeq.domain["pl7.app/vdj/scClonotypeChain/index"]
-				baseLabelForSeq := baseSpecForSeq.annotations["pl7.app/label"]
-				if is_undefined(baseLabelForSeq) {
-					baseLabelForSeq = "Sequence " + string(nr)
-				}
-				cols = append(cols, {
-					column: cname,
-					spec: setTableProps({
-						name: "pl7.app/vdj/sequence",
-						valueType: "String",
-						domain: maps.deepMerge(datasetSpec.axesSpec[1].domain, {
-							"pl7.app/vdj/scClonotypeChain": chain,
-							"pl7.app/vdj/scClonotypeChain/index": chainIndex
-						}),
-						annotations: {}
-						}, baseLabelForSeq, true, "10")
-				})
-			}
-			return cols
-		}(),
-		storageFormat: "Parquet",
-		partitionKeyLength: 0
-		}, {splitDataAndSpec: true, cpu: defaultConvCpu, mem: defaultConvMem})
-
+	// Generate a pFrame for the MSA viewer.
 	msaPf := pframes.pFrameBuilder()
 	i := 0
-	for pf in [seqPf, cloneToClusterLinkPf, distancesPf] {
+	for pf in [cloneToClusterLinkPf, distancesPf] {
 		for k, v in pf {
 			msaPf.add(k + string(i), trace.inject(v.spec), v.data)
 			i = i + 1
@@ -672,7 +636,6 @@ wf.body(func(args) {
 		// save the raw clustering assignment so the (non-deterministic) clustering step dedups by content
 		clustcr: clustcr,
 		clustcrLog: clustcrLog,
-		sequences: clusteringAnalysis.output("sequences"),
 		isEmpty: isEmpty
 	}
 	exports := {

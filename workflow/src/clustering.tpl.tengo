@@ -21,7 +21,7 @@ self.validateInputs({
 })
 
 self.defineOutputs("abundances", "clusterToSeq", "cloneToCluster", "abundancesPerCluster", "distanceToCentroid",
-	"clusterRadius", "clusterToSeqTop", "clusterRadiusTop", "abundancesTop", "sequences", "clustcr",
+	"clusterRadius", "clusterToSeqTop", "clusterRadiusTop", "abundancesTop", "clustcr",
 	"clustcrLog", "isEmpty")
 
 self.body(func(inputs) {
@@ -58,7 +58,6 @@ self.body(func(inputs) {
 			saveFile("cluster-to-seq-top.tsv").
 			saveFile("cluster-radius-top.tsv").
 			saveFile("abundances-top.tsv").
-			saveFile("sequences.tsv").
 			run()
 
 		return {
@@ -71,13 +70,12 @@ self.body(func(inputs) {
 			clusterToSeqTop: emptyFiles.getFile("cluster-to-seq-top.tsv"),
 			clusterRadiusTop: emptyFiles.getFile("cluster-radius-top.tsv"),
 			abundancesTop: emptyFiles.getFile("abundances-top.tsv"),
-			sequences: emptyFiles.getFile("sequences.tsv"),
 			clustcr: {},
 			clustcrLog: {},
 			isEmpty: true
 		}
 	} else {
-		// Step 1: dedup + cluster. run_clustcr.py on the `3.12.10-clustcr` runenv (clusTCR + faiss-cpu
+		// Step 1: dedup + cluster. run_clustcr.py on the `3.10.21-clustcr` runenv (clusTCR + faiss-cpu
 		// + polars, installed from PyPI) takes the raw per-clonotype table, dedups the clustering
 		// columns to unique sequences, runs
 		// clusTCR, and emits the assignment (output.csv) + the representative->clonotype dedup mapping
@@ -126,7 +124,6 @@ self.body(func(inputs) {
 			saveFile("cluster-to-seq-top.tsv").
 			saveFile("cluster-radius-top.tsv").
 			saveFile("abundances-top.tsv").
-			saveFile("sequences.tsv").
 			run()
 
 		return {
@@ -139,7 +136,6 @@ self.body(func(inputs) {
 			clusterToSeqTop: result.getFile("cluster-to-seq-top.tsv"),
 			clusterRadiusTop: result.getFile("cluster-radius-top.tsv"),
 			abundancesTop: result.getFile("abundances-top.tsv"),
-			sequences: result.getFile("sequences.tsv"),
 			// save the raw assignment so the non-deterministic clustering step dedups by content
 			clustcr: clusters,
 			clustcrLog: clustcrLog,

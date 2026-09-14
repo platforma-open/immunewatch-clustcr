@@ -65,15 +65,7 @@ def main():
         "abundances-top.tsv", sep="\t", index=False
     )
 
-    # 10. sequences.tsv: clonotypeKey, fullSequence, and all per-chain sequence columns (MSA input)
-    seq_file_cols = ["clonotypeKey"]
-    if num_sequences > 0:
-        seq_file_cols.append("fullSequence")
-        seq_file_cols.extend(sequence_cols)
-    pd.DataFrame(columns=seq_file_cols).to_csv(
-        "sequences.tsv", sep="\t", index=False
-    )
-
+    
     # (Peptide plurality-centroid.tsv dropped — peptide-only, out of scope for this TCR block.)
 
     print("Created all empty files with proper column headers")
