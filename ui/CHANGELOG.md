@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.1
+
+### Patch Changes
+
+- Updated dependencies [342e909]
+  - @platforma-open/milaboratories.tcr-clustering-clustcr.model@1.0.1
+
 ## 1.0.0
 
 ### Major Changes

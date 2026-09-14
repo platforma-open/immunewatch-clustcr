@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.1
+
+### Patch Changes
+
+- 342e909: Minor changes and activeArgs usage
+- Updated dependencies [342e909]
+  - @platforma-open/milaboratories.tcr-clustering-clustcr.software@1.0.1
+
 ## 1.0.0
 
 ### Major Changes

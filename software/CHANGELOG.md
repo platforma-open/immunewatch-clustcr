@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1
+
+### Patch Changes
+
+- 342e909: Minor changes and activeArgs usage
+
 ## 1.0.0
 
 ### Major Changes
