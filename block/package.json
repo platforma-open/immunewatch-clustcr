@@ -46,7 +46,7 @@
     "meta": {
       "title": "ImmuneWatch ClusTCR",
       "logo": "file:../logos/block-logo.png",
-      "url": "https://github.com/platforma-open/tcr-clustering-clustcr",
+      "url": "https://github.com/platforma-open/immunewatch-clustcr",
       "docs": "https://docs.platforma.bio/",
       "support": "mailto:support@milaboratories.com",
       "description": "TCR clustering by shared antigen specificity: groups clonotypes that likely recognize the same antigen using ClusTCR.",

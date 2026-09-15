@@ -4,6 +4,7 @@
 "@platforma-open/immunewatch.immunewatch-clustcr.model": minor
 "@platforma-open/immunewatch.immunewatch-clustcr.software": minor
 "@platforma-open/immunewatch.immunewatch-clustcr.ui": minor
+"@platforma-open/immunewatch.immunewatch-clustcr.test": minor
 "@platforma-open/immunewatch.immunewatch-clustcr.workflow": minor
 ---
 
