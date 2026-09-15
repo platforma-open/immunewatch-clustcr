@@ -7,3 +7,7 @@ The clustered data can be used in downstream analysis blocks such as ImmuneWatch
 ClusTCR was developed by the Meysman lab (ADReM Data Lab, University of Antwerp) and is distributed by ImmuneWatch BV as the [`immunewatch-clustcr`](https://pypi.org/project/immunewatch-clustcr/) Python package, which is the implementation this block runs. Please cite the following publication if used in your research:
 
 > Sebastiaan Valkiers, Max Van Houcke, Kris Laukens, Pieter Meysman. ClusTCR: a Python interface for rapid clustering of large sets of CDR3 sequences with unknown antigen specificity. _Bioinformatics_ 2021; btab446. [https://doi.org/10.1093/bioinformatics/btab446](https://doi.org/10.1093/bioinformatics/btab446)
+
+# Licensing & Legal Notice
+
+ClusTCR is the property of the University of Antwerp. ImmuneWatch BV holds an exclusive license to ClusTCR and supplies the modified and improved version used in this block under the name "ImmuneWatch ClusTCR". The block is made available within Platforma by MiLaboratories Inc. under agreement with ImmuneWatch BV. "ImmuneWatch," "ImmuneWatch ClusTCR," and "ImmuneWatch DETECT" are trademarks of ImmuneWatch BV. This block is provided for Research Use Only (RUO) and is not intended for use in diagnostic or therapeutic procedures. ImmuneWatch ClusTCR is provided "as is", without warranties of any kind, and is available only through Platforma (not as standalone software); access and use are subject to your Platforma license.

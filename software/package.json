@@ -1,5 +1,5 @@
 {
-  "name": "@platforma-open/milaboratories.tcr-clustering-clustcr.software",
+  "name": "@platforma-open/immunewatch.immunewatch-clustcr.software",
   "version": "1.0.1",
   "files": [
     "./dist/**/*"

@@ -1,4 +1,4 @@
-# @platforma-open/milaboratories.tcr-clustering-clustcr.kind
+# @platforma-open/immunewatch.immunewatch-clustcr.kind
 
 ## 1.0.0
 

@@ -2,7 +2,7 @@ import {
   findClusterByOption,
   getDefaultBlockLabel,
   platforma,
-} from "@platforma-open/milaboratories.tcr-clustering-clustcr.model";
+} from "@platforma-open/immunewatch.immunewatch-clustcr.model";
 import { defineAppV3 } from "@platforma-sdk/ui-vue";
 import { watchEffect } from "vue";
 import BubblePlotPage from "./pages/BubblePlotPage.vue";

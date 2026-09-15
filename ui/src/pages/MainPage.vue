@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { PlMultiSequenceAlignment } from "@milaboratories/multi-sequence-alignment";
 import strings from "@milaboratories/strings";
-import { findClusterByOption } from "@platforma-open/milaboratories.tcr-clustering-clustcr.model";
+import { findClusterByOption } from "@platforma-open/immunewatch.immunewatch-clustcr.model";
 import type {
   AxisId,
   PColumnPredicate,

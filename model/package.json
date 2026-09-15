@@ -1,5 +1,5 @@
 {
-  "name": "@platforma-open/milaboratories.tcr-clustering-clustcr.model",
+  "name": "@platforma-open/immunewatch.immunewatch-clustcr.model",
   "version": "1.0.1",
   "private": true,
   "description": "Block model",
@@ -27,7 +27,7 @@
     "@milaboratories/graph-maker": "catalog:",
     "@milaboratories/helpers": "catalog:",
     "@milaboratories/strings": "catalog:",
-    "@platforma-open/milaboratories.tcr-clustering-clustcr.kind": "workspace:*",
+    "@platforma-open/immunewatch.immunewatch-clustcr.kind": "workspace:*",
     "@platforma-sdk/model": "catalog:"
   },
   "devDependencies": {

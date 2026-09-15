@@ -1,5 +1,5 @@
 {
-  "name": "@platforma-open/milaboratories.tcr-clustering-clustcr.workflow",
+  "name": "@platforma-open/immunewatch.immunewatch-clustcr.workflow",
   "version": "1.0.1",
   "private": true,
   "description": "Tengo-based template",
@@ -11,7 +11,7 @@
     "check": "pl-tengo check"
   },
   "dependencies": {
-    "@platforma-open/milaboratories.tcr-clustering-clustcr.software": "workspace:*",
+    "@platforma-open/immunewatch.immunewatch-clustcr.software": "workspace:*",
     "@platforma-sdk/workflow-tengo": "catalog:"
   },
   "devDependencies": {
