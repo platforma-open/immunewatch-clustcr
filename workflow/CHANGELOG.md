@@ -6,7 +6,7 @@
 
 - 342e909: Minor changes and activeArgs usage
 - Updated dependencies [342e909]
-  - @platforma-open/milaboratories.tcr-clustering-clustcr.software@1.0.1
+  - @platforma-open/immunewatch.immunewatch-clustcr.software@1.0.1
 
 ## 1.0.0
 
@@ -24,6 +24,6 @@
 ### Patch Changes
 
 - Updated dependencies [f4a6017]
-  - @platforma-open/milaboratories.tcr-clustering-clustcr.software@1.0.0
+  - @platforma-open/immunewatch.immunewatch-clustcr.software@1.0.0
 
 Initial version.

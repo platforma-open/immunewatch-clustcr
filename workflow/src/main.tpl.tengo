@@ -496,7 +496,7 @@ wf.body(func(args) {
 	trace := pSpec.makeTrace(
 		abundanceSpec,
 		{
-			type: "milaboratories.tcr-clustering.clustering",
+			type: "immunewatch.immunewatch-clustcr",
 			id: blockId,
 			importance: 30,
 			label: traceLabel

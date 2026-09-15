@@ -2,7 +2,7 @@ self := import("@platforma-sdk/workflow-tengo:tpl")
 exec := import("@platforma-sdk/workflow-tengo:exec")
 assets:= import("@platforma-sdk/workflow-tengo:assets")
 
-emptyCheckSw := assets.importSoftware("@platforma-open/milaboratories.tcr-clustering-clustcr.software:empty-check")
+emptyCheckSw := assets.importSoftware("@platforma-open/immunewatch.immunewatch-clustcr.software:empty-check")
 
 
 self.validateInputs({

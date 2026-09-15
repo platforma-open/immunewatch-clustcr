@@ -1,7 +1,7 @@
 // This file is managed by `block-tools structure`. Do not edit by hand.
 // Author content lives in ./block-extra.ts.
 
-import { platforma } from "@platforma-open/milaboratories.tcr-clustering-clustcr.model";
+import { platforma } from "@platforma-open/immunewatch.immunewatch-clustcr.model";
 import {
   InferOutputsType,
   InferDataType,

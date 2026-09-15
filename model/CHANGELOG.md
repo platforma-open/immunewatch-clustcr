@@ -22,6 +22,6 @@
 ### Patch Changes
 
 - Updated dependencies [f4a6017]
-  - @platforma-open/milaboratories.tcr-clustering-clustcr.kind@1.0.0
+  - @platforma-open/immunewatch.immunewatch-clustcr.kind@1.0.0
 
 Initial version.

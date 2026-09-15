@@ -1,5 +1,5 @@
 {
-  "name": "@platforma-open/milaboratories.tcr-clustering-clustcr.test",
+  "name": "@platforma-open/immunewatch.immunewatch-clustcr.test",
   "version": "0.0.0",
   "private": true,
   "description": "Block tests",
@@ -13,7 +13,7 @@
     "check": "ts-builder check --target block-test"
   },
   "dependencies": {
-    "this-block": "workspace:@platforma-open/milaboratories.tcr-clustering-clustcr@*"
+    "this-block": "workspace:@platforma-open/immunewatch.immunewatch-clustcr@*"
   },
   "devDependencies": {
     "@milaboratories/ts-builder": "catalog:",

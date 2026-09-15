@@ -111,16 +111,16 @@ importers:
       '@milaboratories/ts-configs':
         specifier: 'catalog:'
         version: 1.4.0
-      '@platforma-open/milaboratories.tcr-clustering-clustcr.kind':
+      '@platforma-open/immunewatch.immunewatch-clustcr.kind':
         specifier: workspace:*
         version: link:../kind
-      '@platforma-open/milaboratories.tcr-clustering-clustcr.model':
+      '@platforma-open/immunewatch.immunewatch-clustcr.model':
         specifier: workspace:*
         version: link:../model
-      '@platforma-open/milaboratories.tcr-clustering-clustcr.ui':
+      '@platforma-open/immunewatch.immunewatch-clustcr.ui':
         specifier: workspace:*
         version: link:../ui
-      '@platforma-open/milaboratories.tcr-clustering-clustcr.workflow':
+      '@platforma-open/immunewatch.immunewatch-clustcr.workflow':
         specifier: workspace:*
         version: link:../workflow
       '@platforma-sdk/block-tools':
@@ -175,7 +175,7 @@ importers:
       '@milaboratories/strings':
         specifier: 'catalog:'
         version: 0.1.2
-      '@platforma-open/milaboratories.tcr-clustering-clustcr.kind':
+      '@platforma-open/immunewatch.immunewatch-clustcr.kind':
         specifier: workspace:*
         version: link:../kind
       '@platforma-sdk/model':
@@ -213,7 +213,7 @@ importers:
   test:
     dependencies:
       this-block:
-        specifier: workspace:@platforma-open/milaboratories.tcr-clustering-clustcr@*
+        specifier: workspace:@platforma-open/immunewatch.immunewatch-clustcr@*
         version: link:../block
       typescript:
         specifier: '*'
@@ -246,7 +246,7 @@ importers:
       '@milaboratories/strings':
         specifier: 'catalog:'
         version: 0.1.2
-      '@platforma-open/milaboratories.tcr-clustering-clustcr.model':
+      '@platforma-open/immunewatch.immunewatch-clustcr.model':
         specifier: workspace:*
         version: link:../model
       '@platforma-sdk/model':
@@ -277,7 +277,7 @@ importers:
 
   workflow:
     dependencies:
-      '@platforma-open/milaboratories.tcr-clustering-clustcr.software':
+      '@platforma-open/immunewatch.immunewatch-clustcr.software':
         specifier: workspace:*
         version: link:../software
       '@platforma-sdk/workflow-tengo':
