@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.1
+
+### Patch Changes
+
+- 0e52acd: Update SDK: PlAgDataTable no longer recreates its grid in an endless loop
+
 ## 1.1.0
 
 ### Minor Changes
