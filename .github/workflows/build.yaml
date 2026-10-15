@@ -22,7 +22,7 @@ jobs:
       - init
     uses: milaboratory/github-ci/.github/workflows/node-simple-pnpm.yaml@v4
     with:
-      app-name: 'Block: ImmuneWatch ClusTCR'
+      app-name: 'Block: Immunewatch Clustcr'
       app-name-slug: 'block-immunewatch-clustcr'
       node-version: '22.x'
       gha-runner-label: hz-ubuntu-dind
