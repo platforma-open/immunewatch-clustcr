@@ -41,6 +41,8 @@ export type BlockParams = {
   customBlockLabel?: string;
   /** The clustered dataset. `inputSelection`'s ids are anchored to it, so the two travel together. */
   datasetRef?: PlRef;
+  /** A subset column (`pl7.app/isSubset`) the dataset is restricted to before clustering. */
+  filterRef?: PlRef;
   inputSelection?: InputSelection;
   inflation?: number;
   consensusThreshold?: number;
@@ -84,6 +86,7 @@ const CONTRACT = {
   defaultBlockLabel: check(isString, "a string"),
   customBlockLabel: check(isString, "a string"),
   datasetRef: check(isPlRef, "a reference to an input dataset"),
+  filterRef: check(isPlRef, "a reference to a subset column"),
   inputSelection: check(
     isInputSelection,
     'either {mode: "single", sequenceRef, useVGene} or {mode: "paired", betaRef, alphaRef}, with sequence column identifiers',

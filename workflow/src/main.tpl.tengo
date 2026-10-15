@@ -9,6 +9,7 @@ ll := import("@platforma-sdk/workflow-tengo:ll")
 
 text := import("text")
 math := import("math")
+json := import("json")
 
 clusteringTpl := assets.importTemplate(":clustering")
 emptyCheckTpl := assets.importTemplate(":empty-check")
@@ -37,10 +38,39 @@ setTableProps := func(spec, label, visibility, orderPriority, ...description) {
 	})
 }
 
+// A TSV builder restricted to the rows of an optional subset column. Without one it is the plain
+// xsv builder. With one, every column is its own filtered primary, full-joined as the plain one is.
+newTableBuilder := func(filterColumn) {
+	if is_undefined(filterColumn) {
+		return pframes.tsvFileBuilder()
+	}
+	tb := pframes.tableBuilder("tsv").setJoinMode("full")
+	nColumns := 0
+	return {
+		add: func(column, opts) {
+			tb.addPrimary("col" + string(nColumns), {
+				__isPrimaryRef: "v1",
+				column: column,
+				filter: filterColumn
+				}, opts)
+			nColumns += 1
+		},
+		setAxisHeader: func(matcher, header) { tb.setAxisHeader(matcher, header) },
+		mem: func(amount) { tb.mem(amount) },
+		cpu: func(amount) { tb.cpu(amount) },
+		build: func() { return tb.build() }
+	}
+}
+
 wf.prepare(func(args) {
 	bundleBuilder := wf.createPBundleBuilder()
 	bundleBuilder.ignoreMissingDomains() // to make query work for both bulk and single cell data
 	bundleBuilder.addAnchor("main", args.datasetRef)
+
+	// Optional subset column picked alongside the dataset (PlDatasetSelector)
+	if !is_undefined(args.inputFilter) {
+		bundleBuilder.addRef(json.decode(args.inputFilter))
+	}
 
 	// abundance
 	bundleBuilder.addSingle({
@@ -99,8 +129,14 @@ wf.body(func(args) {
 	defaultConvMem := string(int(math.max(16, baseMemGiB / 8))) + "GiB"
 	defaultConvCpu := 1
 
+	// Optional subset filter; both tables keep only its clonotypes, so only they are clustered
+	filterColumn := undefined
+	if !is_undefined(args.inputFilter) {
+		filterColumn = columns.getColumn(json.decode(args.inputFilter))
+	}
+
 	// Clustering input table: clonotypeKey + sequence_N (CDR3 chain[s]) + (single + V-gene) v_gene.
-	seqTableBuilder := pframes.tsvFileBuilder()
+	seqTableBuilder := newTableBuilder(filterColumn)
 	seqTableBuilder.mem(string(int(math.max(32, baseMemGiB / 4))) + "GiB")
 	seqTableBuilder.cpu(4)
 
@@ -131,7 +167,7 @@ wf.body(func(args) {
 	mappingRef := anonymizationResult.output("mapping")
 
 	// clone table
-	cloneTableBuilder := pframes.tsvFileBuilder()
+	cloneTableBuilder := newTableBuilder(filterColumn)
 	cloneTableBuilder.add({ spec: abundanceColumn.spec, data: anonymizedAbundanceData }, {header: "abundance"})
 	for nr, seq in sequencesRef {
 		cloneTableBuilder.add(columns.getColumn(seq), {header: "sequence_" + string(nr)})
@@ -175,14 +211,19 @@ wf.body(func(args) {
 	isEmpty := clusteringAnalysis.output("isEmpty")
 
 	// Build pFrames using the library
+	clusterDomain := {
+		"pl7.app/clustering/algorithm": "clustcr",
+		"pl7.app/clustering/blockId": blockId
+	}
+	// A subset run stamps the subset on the cluster axis and the distance column, so they say they
+	// cover only the subset
+	if !is_undefined(filterColumn) {
+		clusterDomain["pl7.app/inputSubset"] = args.inputFilter
+	}
 	clusterIdAxisSpec := {
 		name: "pl7.app/clusterId",
 		type: "String",
-		domain: maps.deepMerge(datasetSpec.axesSpec[1].domain,
-			{
-				"pl7.app/clustering/algorithm": "clustcr",
-				"pl7.app/clustering/blockId": blockId
-		}),
+		domain: maps.deepMerge(datasetSpec.axesSpec[1].domain, clusterDomain),
 		annotations: {
 			"pl7.app/label": "Cluster Id",
 			"pl7.app/table/visibility": "default",
@@ -446,10 +487,7 @@ wf.body(func(args) {
 			spec: setTableProps({
 				name: "pl7.app/distanceToCentroid",
 				valueType: "Float",
-				domain:  {
-					"pl7.app/clustering/algorithm": "clustcr",
-					"pl7.app/clustering/blockId": blockId
-				},
+				domain: clusterDomain,
 				annotations: {
 					"pl7.app/min": "0",
 					"pl7.app/max": "1",
@@ -493,8 +531,13 @@ wf.body(func(args) {
 	}
 
 	// building outputs & exports
+	// A subset run roots the trace in the filter (dataset -> the block that made the subset)
+	traceSpec := abundanceSpec
+	if !is_undefined(filterColumn) {
+		traceSpec = filterColumn.spec
+	}
 	trace := pSpec.makeTrace(
-		abundanceSpec,
+		traceSpec,
 		{
 			type: "immunewatch.immunewatch-clustcr",
 			id: blockId,
