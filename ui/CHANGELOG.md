@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.1
+
+### Patch Changes
+
+- 1fd1305: Release every package through npm trusted publishing (OIDC) so each package's trusted publisher is used before it expires.
+- Updated dependencies [1fd1305]
+  - @platforma-open/immunewatch.immunewatch-clustcr.model@1.1.1
+
 ## 1.1.0
 
 ### Minor Changes

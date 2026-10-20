@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1
+
+### Patch Changes
+
+- 1fd1305: Release every package through npm trusted publishing (OIDC) so each package's trusted publisher is used before it expires.
+
 ## 0.1.0
 
 ### Minor Changes

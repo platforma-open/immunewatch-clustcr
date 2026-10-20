@@ -1,6 +1,6 @@
 {
   "name": "@platforma-open/immunewatch.immunewatch-clustcr.workflow",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "description": "Tengo-based template",
   "type": "module",
