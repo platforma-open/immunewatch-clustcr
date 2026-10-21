@@ -2,7 +2,14 @@
   "$schema": "https://unpkg.com/@changesets/config@3.1.1/schema.json",
   "changelog": "@changesets/cli/changelog",
   "commit": false,
-  "fixed": [],
+  "fixed": [
+    [
+      "@platforma-open/immunewatch.immunewatch-clustcr",
+      "@platforma-open/immunewatch.immunewatch-clustcr.model",
+      "@platforma-open/immunewatch.immunewatch-clustcr.ui",
+      "@platforma-open/immunewatch.immunewatch-clustcr.workflow"
+    ]
+  ],
   "linked": [],
   "access": "restricted",
   "baseBranch": "main",
