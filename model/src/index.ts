@@ -3,6 +3,7 @@ import strings from "@milaboratories/strings";
 import type { InputSelection } from "@platforma-open/immunewatch.immunewatch-clustcr.kind";
 import { kind } from "@platforma-open/immunewatch.immunewatch-clustcr.kind";
 import type {
+  DatasetOption,
   PColumnIdAndSpec,
   PColumnSpec,
   PFrameHandle,
@@ -14,9 +15,13 @@ import type {
 import {
   BlockModelV3,
   DataModelBuilder,
+  buildDatasetOptions,
+  createGlobalPObjectId,
   createPFrameForGraphs,
   createPlDataTableStateV2,
   createPlDataTableV2,
+  isPColumnSpec,
+  plRefsEqual,
 } from "@platforma-sdk/model";
 export type * from "@milaboratories/helpers";
 
@@ -30,6 +35,7 @@ export type BlockData = {
 
   // Input selection.
   datasetRef?: PlRef; // anchor: bulk or single-cell TCR dataset
+  filterRef?: PlRef; // subset column picked with the dataset (e.g. a Repertoire Labeling label)
   inputSelection?: InputSelection; // the chosen "Cluster by" option (mode + ref(s) + useVGene)
 
   // Engine parameter (advanced). MCL inflation = 1st element of mcl_params=[inflation, 2].
@@ -100,6 +106,7 @@ const dataModel = new DataModelBuilder({ kind })
       getDefaultBlockLabel({ inputLabel: "", inflation: params?.inflation ?? 1.2 }),
     customBlockLabel: params?.customBlockLabel ?? "",
     datasetRef: params?.datasetRef,
+    filterRef: params?.filterRef,
     inputSelection: params?.inputSelection,
     inflation: params?.inflation ?? 1.2,
     consensusThreshold: params?.consensusThreshold ?? 0.6,
@@ -138,6 +145,15 @@ const dataModel = new DataModelBuilder({ kind })
  */
 const OFFER_PAIRED: boolean = false;
 
+// Key axes of the datasets this block clusters: bulk and single-cell clonotypes.
+const DATASET_KEY_AXES: ReadonlySet<string> = new Set([
+  "pl7.app/vdj/clonotypeKey",
+  "pl7.app/vdj/scClonotypeKey",
+]);
+
+// Bulk anchors carry the chain per clonotypeKey; keep only the TCR α/β chains.
+const TCR_AB_CHAINS = new Set(["TCRAlpha", "TCRBeta"]);
+
 /** Strip the trailing " Primary" token from a MiXCR single-cell label ("Beta CDR3 aa Primary" -> "Beta CDR3 aa"). */
 function trimPrimary(label: string): string {
   return label.replace(/\s+Primary$/i, "");
@@ -172,15 +188,20 @@ export const platforma = BlockModelV3.create({ dataModel, kind })
       weightByAbundance: data.weightByAbundance,
       mem: data.mem,
       cpu: data.cpu,
+      // The subset's canonical column id, stamped by the workflow as `pl7.app/inputSubset`
+      ...(data.filterRef !== undefined && {
+        inputFilter: createGlobalPObjectId(data.filterRef.blockId, data.filterRef.name),
+      }),
     };
   })
 
-  // The inverse of `init`: the same six fields, so a block exports what it can be seeded with.
+  // The inverse of `init`: the same fields, so a block exports what it can be seeded with.
   // `inputSelection` holds ids anchored to `datasetRef`, so it travels only alongside it
   .templateParams((data) => ({
     defaultBlockLabel: data.defaultBlockLabel,
     customBlockLabel: data.customBlockLabel,
     datasetRef: data.datasetRef,
+    filterRef: data.datasetRef === undefined ? undefined : data.filterRef,
     inputSelection: data.datasetRef === undefined ? undefined : data.inputSelection,
     inflation: data.inflation,
     consensusThreshold: data.consensusThreshold,
@@ -191,8 +212,9 @@ export const platforma = BlockModelV3.create({ dataModel, kind })
   // Only TCR α/β is offered — IG (BCR) and TCR γ/δ are dropped. Bulk anchors are per-chain
   // (clonotypeKey domain `pl7.app/vdj/chain` = TCRAlpha/TCRBeta); single-cell anchors are
   // per-receptor (scClonotypeKey domain `pl7.app/vdj/receptor` = TCRAB).
-  .output("datasetOptions", (ctx) => {
-    const options = ctx.resultPool.getOptions(
+  .output("datasetOptions", (ctx): DatasetOption[] => {
+    // Labels as before: derived across every anchor on these axes, without the native label
+    const labeled = ctx.resultPool.getOptions(
       [
         {
           axes: [{ name: "pl7.app/sampleId" }, { name: "pl7.app/vdj/clonotypeKey" }],
@@ -203,30 +225,38 @@ export const platforma = BlockModelV3.create({ dataModel, kind })
           annotations: { "pl7.app/isAnchor": "true" },
         },
       ],
-      {
-        // suppress the column's native label (e.g. "Number of Reads") to show only the dataset label
-        label: { includeNativeLabel: false },
-      },
+      { label: { includeNativeLabel: false } },
     );
 
-    // Bulk anchors carry the chain per clonotypeKey; keep only the TCR α/β chains.
-    const TCR_AB_CHAINS = new Set(["TCRAlpha", "TCRBeta"]);
+    const options =
+      buildDatasetOptions(ctx, {
+        primary: (spec) => {
+          if (!isPColumnSpec(spec) || spec.annotations?.["pl7.app/isAnchor"] !== "true")
+            return false;
+          const [sampleAxis, keyAxis] = spec.axesSpec;
+          if (spec.axesSpec.length !== 2 || sampleAxis.name !== "pl7.app/sampleId") return false;
+          // Exclude this block's OWN exported cluster axis from the input picker.
+          if (keyAxis.domain?.["pl7.app/clustering/algorithm"] !== undefined) return false;
+          // Bulk: per-chain anchor → keep only TCR α/β (drop IG, TCR γ/δ).
+          if (keyAxis.name === "pl7.app/vdj/clonotypeKey")
+            return TCR_AB_CHAINS.has(keyAxis.domain?.["pl7.app/vdj/chain"] ?? "");
+          // Single-cell: per-receptor anchor → keep only the TCR α/β receptor (drop IG, TCR γ/δ). The
+          // "Cluster by" dropdown then offers the per-chain CDR3 options plus Paired (α + β).
+          if (keyAxis.name === "pl7.app/vdj/scClonotypeKey")
+            return keyAxis.domain?.["pl7.app/vdj/receptor"] === "TCRAB";
+          return false;
+        },
+        // Only subsets keyed by the clonotype axis alone
+        filter: (spec) =>
+          isPColumnSpec(spec) &&
+          spec.axesSpec.length === 1 &&
+          DATASET_KEY_AXES.has(spec.axesSpec[0].name),
+        requireEnrichments: false,
+      }) ?? [];
 
-    return options.filter((opt) => {
-      const keyAxis = ctx.resultPool.getPColumnSpecByRef(opt.ref)?.axesSpec[1];
-      if (keyAxis === undefined) return false;
-      // Exclude this block's OWN exported cluster axis from the input picker.
-      if (keyAxis.domain?.["pl7.app/clustering/algorithm"] !== undefined) return false;
-      // Bulk: per-chain anchor → keep only TCR α/β (drop IG, TCR γ/δ).
-      if (keyAxis.name === "pl7.app/vdj/clonotypeKey") {
-        return TCR_AB_CHAINS.has(keyAxis.domain?.["pl7.app/vdj/chain"] ?? "");
-      }
-      // Single-cell: per-receptor anchor → keep only the TCR α/β receptor (drop IG, TCR γ/δ). The
-      // "Cluster by" dropdown then offers the per-chain CDR3 options plus Paired (α + β).
-      if (keyAxis.name === "pl7.app/vdj/scClonotypeKey") {
-        return keyAxis.domain?.["pl7.app/vdj/receptor"] === "TCRAB";
-      }
-      return false;
+    return options.map((option) => {
+      const label = labeled.find((o) => plRefsEqual(o.ref, option.primary.ref, true))?.label;
+      return label === undefined ? option : { ...option, primary: { ...option.primary, label } };
     });
   })
 

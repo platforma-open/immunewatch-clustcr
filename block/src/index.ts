@@ -47,9 +47,9 @@ export const BlockPointer = {
 // Block-named aliases for readable cross-block imports in tests and
 // consumer code. Same types / same runtime value as the universal
 // names above; the aliases avoid `as`-renames at the import site.
-export type TcrClusteringClustcrBlockContract = BlockContract;
-export type TcrClusteringClustcrBlockOutputs  = BlockOutputs;
-export type TcrClusteringClustcrBlockData     = BlockData;
-export const TcrClusteringClustcrBlockPointer = BlockPointer;
+export type ImmunewatchClustcrBlockContract = BlockContract;
+export type ImmunewatchClustcrBlockOutputs  = BlockOutputs;
+export type ImmunewatchClustcrBlockData     = BlockData;
+export const ImmunewatchClustcrBlockPointer = BlockPointer;
 
 export * from "./block-extra";
