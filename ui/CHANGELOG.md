@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.1
+
+### Patch Changes
+
+- @platforma-open/immunewatch.immunewatch-clustcr.model@1.2.1
+
 ## 1.2.0
 
 ### Minor Changes
