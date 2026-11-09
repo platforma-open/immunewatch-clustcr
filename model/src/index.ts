@@ -28,10 +28,16 @@ export type * from "@milaboratories/helpers";
 /** Re-exported from the kind, which owns it: the init-params contract carries it. */
 export type { InputSelection } from "@platforma-open/immunewatch.immunewatch-clustcr.kind";
 
-export type BlockData = {
-  // Block label (custom overrides default).
+type BlockDataV1 = Omit<BlockData, "subtitleLabel"> & {
   defaultBlockLabel: string;
+};
+
+export type BlockData = {
+  // Block label: when set, it replaces both the trace label and the subtitle.
   customBlockLabel: string;
+  // Label of the chosen "Cluster by" option as the result pool shows it. Written by the pickers
+  // on a user pick; feeds the subtitle only, never the workflow.
+  subtitleLabel?: string;
 
   // Input selection.
   datasetRef?: PlRef; // anchor: bulk or single-cell TCR dataset
@@ -89,22 +95,34 @@ export function findClusterByOption(
   });
 }
 
-export function getDefaultBlockLabel(data: { inputLabel: string; inflation: number }): string {
-  const parts: string[] = [];
-  if (data.inputLabel) parts.push(data.inputLabel);
-  parts.push(`inflation:${data.inflation}`);
-  return parts.filter(Boolean).join(", ");
+/** Settings part of the block label, shared by the trace label and the subtitle. */
+export function labelFromParams(data: BlockData): string {
+  return `inflation:${data.inflation}`;
+}
+
+/**
+ * Subtitle shown when the user has not set a custom block label. The stored option label counts
+ * only while a "Cluster by" selection exists: a selection cleared because its option disappeared
+ * leaves `subtitleLabel` naming the dropped option.
+ */
+export function defaultSubtitle(data: BlockData): string {
+  const optionLabel = data.inputSelection ? data.subtitleLabel : "";
+  return [optionLabel, labelFromParams(data)].filter(Boolean).join(", ");
 }
 
 const dataModel = new DataModelBuilder({ kind })
-  .from<BlockData>("v1")
+  .from<BlockDataV1>("v1")
+  // The old label mixed the "Cluster by" option label from the result pool with the inflation;
+  // the inflation part is recomputed from data, the option part returns on the next pick.
+  .migrate<BlockData>("v2", ({ defaultBlockLabel: _, ...rest }) => ({
+    ...rest,
+    subtitleLabel: "",
+  }))
   // `params` is absent when a block is created by hand rather than from a template, so every
   // field the contract carries keeps its own default.
   .init(({ params }) => ({
-    defaultBlockLabel:
-      params?.defaultBlockLabel ??
-      getDefaultBlockLabel({ inputLabel: "", inflation: params?.inflation ?? 1.2 }),
     customBlockLabel: params?.customBlockLabel ?? "",
+    subtitleLabel: "",
     datasetRef: params?.datasetRef,
     filterRef: params?.filterRef,
     inputSelection: params?.inputSelection,
@@ -179,8 +197,8 @@ export const platforma = BlockModelV3.create({ dataModel, kind })
       throw new Error("Consensus threshold must be between 0 and 1");
 
     return {
-      defaultBlockLabel: data.defaultBlockLabel,
       customBlockLabel: data.customBlockLabel,
+      paramsLabel: labelFromParams(data),
       datasetRef: data.datasetRef,
       inputSelection: sel,
       inflation: data.inflation,
@@ -198,7 +216,6 @@ export const platforma = BlockModelV3.create({ dataModel, kind })
   // The inverse of `init`: the same fields, so a block exports what it can be seeded with.
   // `inputSelection` holds ids anchored to `datasetRef`, so it travels only alongside it
   .templateParams((data) => ({
-    defaultBlockLabel: data.defaultBlockLabel,
     customBlockLabel: data.customBlockLabel,
     datasetRef: data.datasetRef,
     filterRef: data.datasetRef === undefined ? undefined : data.filterRef,
@@ -434,7 +451,7 @@ export const platforma = BlockModelV3.create({ dataModel, kind })
 
   .title(() => "ImmuneWatch ClusTCR")
 
-  .subtitle((ctx) => ctx.data.customBlockLabel || ctx.data.defaultBlockLabel)
+  .subtitle((ctx) => ctx.data.customBlockLabel || defaultSubtitle(ctx.data))
 
   .sections((_ctx) => [
     { type: "link" as const, href: "/" as const, label: strings.titles.main },
