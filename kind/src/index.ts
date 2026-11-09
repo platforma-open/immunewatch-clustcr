@@ -37,7 +37,6 @@ export type InputSelection =
  * set all of them.
  */
 export type BlockParams = {
-  defaultBlockLabel?: string;
   customBlockLabel?: string;
   /** The clustered dataset. `inputSelection`'s ids are anchored to it, so the two travel together. */
   datasetRef?: PlRef;
@@ -83,7 +82,6 @@ const isInputSelection: Guard<InputSelection> = (v): v is InputSelection => {
  * model enforces (1.01–5.0 and 0–1).
  */
 const CONTRACT = {
-  defaultBlockLabel: check(isString, "a string"),
   customBlockLabel: check(isString, "a string"),
   datasetRef: check(isPlRef, "a reference to an input dataset"),
   filterRef: check(isPlRef, "a reference to a subset column"),

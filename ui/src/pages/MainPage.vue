@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { PlMultiSequenceAlignment } from "@milaboratories/multi-sequence-alignment";
 import strings from "@milaboratories/strings";
-import { findClusterByOption } from "@platforma-open/immunewatch.immunewatch-clustcr.model";
+import {
+  defaultSubtitle,
+  findClusterByOption,
+} from "@platforma-open/immunewatch.immunewatch-clustcr.model";
 import type {
   AxisId,
   DatasetSelection,
@@ -152,7 +155,7 @@ const clusterAxis = computed<AxisId>(() => ({
 <template>
   <PlBlockPage
     v-model:subtitle="app.model.data.customBlockLabel"
-    :subtitle-placeholder="app.model.data.defaultBlockLabel"
+    :subtitle-placeholder="defaultSubtitle(app.model.data)"
     title="ImmuneWatch ClusTCR"
   >
     <template #append>
