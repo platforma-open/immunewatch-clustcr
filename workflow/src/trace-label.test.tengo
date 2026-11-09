@@ -1,0 +1,76 @@
+test := import("@platforma-sdk/workflow-tengo:test")
+traceLabel := import(":trace-label")
+
+specs := {
+	cdr3: {annotations: {"pl7.app/label": "CDR3 aa"}},
+	cdr3Primary: {annotations: {"pl7.app/label": "CDR3 aa Beta Primary"}},
+	unlabelled: {annotations: {}},
+	bare: {}
+}
+
+columns := {
+	getSpec: func(ref) {
+		return specs[ref]
+	}
+}
+
+args := func(overrides) {
+	res := {
+		customBlockLabel: "",
+		paramsLabel: ""
+	}
+	for k, v in overrides {
+		res[k] = v
+	}
+	return res
+}
+
+single := func(sequenceRef, vGeneRef) {
+	return {mode: "single", sequenceRef: sequenceRef, vGeneRef: vGeneRef}
+}
+
+paired := {mode: "paired", betaRef: "beta", alphaRef: "alpha"}
+
+Test_custom_label_is_kept_verbatim := func() {
+	test.isEqual("My run", traceLabel.build(args({
+		customBlockLabel: "My run",
+		paramsLabel: "inflation:2"
+	}), columns, single("cdr3", "vgene")), "custom label wins")
+}
+
+Test_default_lists_column_label_then_settings := func() {
+	test.isEqual("ImmuneWatch ClusTCR (CDR3 aa, inflation:2)", traceLabel.build(args({
+		paramsLabel: "inflation:2"
+	}), columns, single("cdr3", undefined)), "column label, then settings")
+}
+
+Test_trailing_primary_is_stripped := func() {
+	test.isEqual("ImmuneWatch ClusTCR (CDR3 aa Beta)", traceLabel.build(args({}),
+		columns, single("cdr3Primary", undefined)), "single-cell Primary suffix dropped")
+}
+
+Test_v_gene_adds_suffix := func() {
+	test.isEqual("ImmuneWatch ClusTCR (CDR3 aa + V gene, inflation:2)", traceLabel.build(args({
+		paramsLabel: "inflation:2"
+	}), columns, single("cdr3", "vgene")), "V gene joins the clustering")
+}
+
+Test_paired_mode_names_both_chains := func() {
+	test.isEqual("ImmuneWatch ClusTCR (Paired (α + β), inflation:2)", traceLabel.build(args({
+		paramsLabel: "inflation:2"
+	}), columns, paired), "paired selection")
+}
+
+Test_unlabelled_column_is_skipped := func() {
+	test.isEqual("ImmuneWatch ClusTCR (inflation:2)", traceLabel.build(args({
+		paramsLabel: "inflation:2"
+	}), columns, single("unlabelled", "vgene")), "empty annotations")
+	test.isEqual("ImmuneWatch ClusTCR (inflation:2)", traceLabel.build(args({
+		paramsLabel: "inflation:2"
+	}), columns, single("bare", undefined)), "no annotations")
+}
+
+Test_nothing_chosen_gives_the_block_name := func() {
+	test.isEqual("ImmuneWatch ClusTCR", traceLabel.build(args({}),
+		columns, single("bare", undefined)), "bare block name")
+}

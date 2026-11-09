@@ -29,11 +29,15 @@ export const useApp = sdkPlugin.useApp;
 
 type AppModel = ReturnType<typeof useApp>["model"];
 
-// The subtitle names the chosen "Cluster by" option as the result pool labels it.
+// The subtitle names the chosen "Cluster by" option as the result pool labels it: "" when none is
+// chosen, undefined while the options are loading, "" when the loaded options no longer list it.
 function syncSubtitleLabel(model: AppModel) {
   const subtitleLabel = computed<string | undefined>(() => {
-    if (model.data.inputSelection === undefined) return "";
-    return findClusterByOption(model.outputs.clusterByOptions, model.data.inputSelection)?.label;
+    const selection = model.data.inputSelection;
+    if (selection === undefined) return "";
+    const options = model.outputs.clusterByOptions;
+    if (options === undefined) return undefined;
+    return findClusterByOption(options, selection)?.label ?? "";
   });
 
   watch(
