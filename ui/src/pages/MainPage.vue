@@ -74,10 +74,7 @@ const datasetSelection = computed<DatasetSelection | undefined>({
     // The "Cluster by" choice is scoped to a dataset — clear it when the dataset changes so the
     // user re-picks against the new options (and we never carry an unresolvable ref into the run).
     const sameRef = prev?.blockId === next?.blockId && prev?.name === next?.name;
-    if (!sameRef) {
-      app.model.data.inputSelection = undefined;
-      refreshSubtitleLabel();
-    }
+    if (!sameRef) app.model.data.inputSelection = undefined;
   },
 });
 
@@ -90,15 +87,6 @@ const selectedOption = computed(() =>
 const clusterBy = computed(() => selectedOption.value?.value);
 function onClusterByChange(value?: string) {
   app.model.data.inputSelection = value ? JSON.parse(value) : undefined;
-  refreshSubtitleLabel();
-}
-
-// The subtitle names the chosen "Cluster by" option as the result pool labels it.
-// Called only from the pickers' setters, so reopening the block never rewrites it.
-function refreshSubtitleLabel() {
-  app.model.data.subtitleLabel =
-    findClusterByOption(app.model.outputs.clusterByOptions, app.model.data.inputSelection)?.label ??
-    "";
 }
 
 // Self-heal a stale selection: if the options reload and the stored selection is no longer offered
