@@ -15,6 +15,7 @@ clusteringTpl := assets.importTemplate(":clustering")
 emptyCheckTpl := assets.importTemplate(":empty-check")
 deanonimizationTpl := assets.importTemplate(":deanonimization")
 anonymizationTpl := assets.importTemplate(":anonymization")
+traceLabelLib := import(":trace-label")
 
 // `description` (optional, trailing) sets "pl7.app/description", which the data table
 // renders as the column-header hover tooltip — a short definition of the column.
@@ -60,37 +61,6 @@ newTableBuilder := func(filterColumn) {
 		cpu: func(amount) { tb.cpu(amount) },
 		build: func() { return tb.build() }
 	}
-}
-
-// Block label (custom overrides default). The default is the block name with what was
-// clustered — the chosen CDR3 column's native label without the trailing " Primary" of
-// single-cell data, plus " + V gene" when V genes join the clustering — followed by the settings.
-buildTraceLabel := func(args, columns, sel) {
-	traceLabel := args.customBlockLabel
-	if traceLabel == "" {
-		labelParts := []
-		if sel.mode == "paired" {
-			labelParts = append(labelParts, "Paired (α + β)")
-		} else {
-			annotations := columns.getSpec(sel.sequenceRef).annotations
-			label := is_undefined(annotations) ? undefined : annotations["pl7.app/label"]
-			if !is_undefined(label) && label != "" {
-				label = text.re_replace(`(?i)\s+Primary$`, label, "")
-				if !is_undefined(sel.vGeneRef) {
-					label = label + " + V gene"
-				}
-				labelParts = append(labelParts, label)
-			}
-		}
-		if args.paramsLabel != "" {
-			labelParts = append(labelParts, args.paramsLabel)
-		}
-		traceLabel = "ImmuneWatch ClusTCR"
-		if len(labelParts) > 0 {
-			traceLabel = "ImmuneWatch ClusTCR (" + text.join(labelParts, ", ") + ")"
-		}
-	}
-	return traceLabel
 }
 
 wf.prepare(func(args) {
@@ -556,7 +526,7 @@ wf.body(func(args) {
 		partitionKeyLength: 0
 		}, {splitDataAndSpec: true, cpu: defaultConvCpu, mem: defaultConvMem})
 
-	traceLabel := buildTraceLabel(args, columns, sel)
+	traceLabel := traceLabelLib.build(args, columns, sel)
 
 	// building outputs & exports
 	// A subset run roots the trace in the filter (dataset -> the block that made the subset)
