@@ -35,8 +35,8 @@ type BlockDataV1 = Omit<BlockData, "subtitleLabel"> & {
 export type BlockData = {
   // Block label: when set, it replaces both the trace label and the subtitle.
   customBlockLabel: string;
-  // Label of the chosen "Cluster by" option as the result pool shows it. Written by the pickers
-  // on a user pick; feeds the subtitle only, never the workflow.
+  // Label of the chosen "Cluster by" option as the result pool shows it, kept in sync by the UI;
+  // feeds the subtitle only, never the workflow.
   subtitleLabel?: string;
 
   // Input selection.
@@ -102,8 +102,7 @@ export function labelFromParams(data: BlockData): string {
 
 /**
  * Subtitle shown when the user has not set a custom block label. The stored option label counts
- * only while a "Cluster by" selection exists: a selection cleared because its option disappeared
- * leaves `subtitleLabel` naming the dropped option.
+ * only while a "Cluster by" selection exists.
  */
 export function defaultSubtitle(data: BlockData): string {
   const optionLabel = data.inputSelection ? data.subtitleLabel : "";
@@ -113,7 +112,7 @@ export function defaultSubtitle(data: BlockData): string {
 const dataModel = new DataModelBuilder({ kind })
   .from<BlockDataV1>("v1")
   // The old label mixed the "Cluster by" option label from the result pool with the inflation;
-  // the inflation part is recomputed from data, the option part returns on the next pick.
+  // the inflation part is recomputed from data, the option part returns when the block is opened.
   .migrate<BlockData>("v2", ({ defaultBlockLabel: _, ...rest }) => ({
     ...rest,
     subtitleLabel: "",
